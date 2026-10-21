@@ -1,0 +1,281 @@
+* {
+ box-sizing: border-box;
+}
+
+body.halaman-login {
+ min-height: 100vh;
+ margin: 0;
+ padding: 1.5rem;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ color: #16202e;
+ background:
+  radial-gradient(ellipse at 12% 12%, rgba(245, 197, 24, .16), transparent 32rem),
+  linear-gradient(135deg, #eef2fa, #f8f9fc 55%, #e8edfa);
+ font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+ line-height: 1.6;
+}
+
+.halaman-login a {
+ color: #1f3a8a;
+ text-underline-offset: 3px;
+}
+
+.halaman-login :focus-visible {
+ outline: 3px solid #2f6bff;
+ outline-offset: 3px;
+}
+
+.login-brand {
+ display: flex;
+ align-items: center;
+ gap: .8rem;
+ margin-bottom: 1.5rem;
+ color: #16202e;
+}
+
+.login-brand img {
+ width: 46px;
+ height: 46px;
+ object-fit: contain;
+}
+
+.login-brand p {
+ margin: 0;
+ font-size: .85rem;
+ line-height: 1.35;
+}
+
+.login-brand strong {
+ display: block;
+ color: #1f3a8a;
+ font-size: 1rem;
+ letter-spacing: .04em;
+}
+
+.login-main {
+ width: min(100%, 440px);
+}
+
+.login-card {
+ padding: clamp(1.5rem, 6vw, 2.5rem);
+ background: rgba(255, 255, 255, .96);
+ border: 1px solid #dde2ea;
+ border-top: 4px solid #f5c518;
+ border-radius: 16px;
+ box-shadow: 0 20px 55px rgba(19, 36, 94, .12);
+}
+
+.login-card h1 {
+ margin: 0 0 1.5rem;
+ color: #13245e;
+ font-size: 1.75rem;
+ line-height: 1.25;
+ text-align: center;
+}
+
+.field {
+ position: relative;
+ margin-top: 1rem;
+}
+
+.field input {
+ width: 100%;
+ min-height: 52px;
+ margin: 0;
+ padding: .75rem 3rem .75rem 1rem;
+ border: 1px solid #b9c1ce;
+ border-radius: 9px;
+ background: #fff;
+ color: #16202e;
+ font: inherit;
+ font-size: .95rem;
+}
+
+.field input::placeholder {
+ color: #687386;
+ opacity: 1;
+}
+
+.field input:focus {
+ border-color: #2f6bff;
+ outline: 0;
+ box-shadow: 0 0 0 3px rgba(47, 107, 255, .16);
+}
+
+.ikon {
+ position: absolute;
+ top: 50%;
+ right: .9rem;
+ width: 22px;
+ height: 22px;
+ color: #526074;
+ transform: translateY(-50%);
+ pointer-events: none;
+}
+
+button.ikon-tombol {
+ display: grid;
+ place-items: center;
+ padding: 0;
+ border: 0;
+ background: transparent;
+ color: #526074;
+ cursor: pointer;
+ pointer-events: auto;
+}
+
+button.ikon-tombol:hover {
+ color: #1f3a8a;
+}
+
+.baris-opsi {
+ display: flex;
+ flex-wrap: wrap;
+ align-items: center;
+ justify-content: space-between;
+ gap: .5rem;
+ margin-top: 1rem;
+ font-size: .82rem;
+}
+
+.cek {
+ display: inline-flex;
+ align-items: center;
+ gap: .45rem;
+ cursor: pointer;
+}
+
+.cek input {
+ width: 1rem;
+ height: 1rem;
+ margin: 0;
+ accent-color: #1f3a8a;
+}
+
+.reset-info {
+ display: none;
+ margin: .65rem 0 0;
+ padding: .65rem .75rem;
+ border-radius: 7px;
+ background: #eef2fa;
+ color: #3b4454;
+ font-size: .8rem;
+}
+
+.reset-info:target {
+ display: block;
+}
+
+.btn-login {
+ width: 100%;
+ min-height: 50px;
+ margin-top: 1.5rem;
+ padding: .7rem 1rem;
+ border: 0;
+ border-radius: 9px;
+ background: #1f3a8a;
+ color: #fff;
+ cursor: pointer;
+ font: inherit;
+ font-weight: 600;
+ transition: background-color .15s, transform .15s;
+}
+
+.btn-login:hover {
+ background: #13245e;
+}
+
+.btn-login:active {
+ transform: translateY(1px);
+}
+
+.login-flash {
+ margin: 0 0 1rem;
+ padding: .75rem 1rem;
+ border-left: 4px solid;
+ border-radius: 7px;
+ font-size: .88rem;
+}
+
+.login-flash-error {
+ border-color: #c93a33;
+ background: #fdeceb;
+ color: #8f1f1b;
+}
+
+.login-flash-success {
+ border-color: #2b8a3e;
+ background: #e6f5ea;
+ color: #17572a;
+}
+
+.login-bawah {
+ margin: 1.25rem 0 0;
+ color: #526074;
+ font-size: .88rem;
+ text-align: center;
+}
+
+.login-demo {
+ margin-top: 1rem;
+ padding: .85rem 1rem;
+ border: 1px solid #dde2ea;
+ border-radius: 9px;
+ background: rgba(255, 255, 255, .75);
+ color: #526074;
+ font-size: .8rem;
+}
+
+.login-demo summary {
+ color: #1f3a8a;
+ cursor: pointer;
+ font-weight: 600;
+}
+
+.login-demo p {
+ margin: .65rem 0 0;
+ overflow-wrap: anywhere;
+}
+
+.login-demo code {
+ color: #16202e;
+ font-size: .78rem;
+}
+
+.sr-only {
+ position: absolute;
+ width: 1px;
+ height: 1px;
+ padding: 0;
+ margin: -1px;
+ overflow: hidden;
+ clip: rect(0, 0, 0, 0);
+ white-space: nowrap;
+ border: 0;
+}
+
+@media (max-width: 480px) {
+ body.halaman-login {
+  padding: 1.25rem;
+ }
+
+ .login-brand {
+  margin-bottom: 1rem;
+ }
+
+ .login-card h1 {
+  font-size: 1.5rem;
+ }
+}
+
+@media (prefers-reduced-motion: reduce) {
+ *,
+ *::before,
+ *::after {
+  scroll-behavior: auto !important;
+  transition-duration: .01ms !important;
+ }
+}
