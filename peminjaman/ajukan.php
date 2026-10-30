@@ -1,9 +1,16 @@
 <?php
+// Cek apakah user sudah login atau belum
+if (!isset($_SESSION['user_id']) && !isset($_SESSION['login'])) {
+    // Redirect ke halaman login jika belum login saat mau transaksi
+    header("Location: ../login.php?pesan=harus_login");
+    exit;
+}
 $page_title = "Ajukan Peminjaman";
 $wajib_login = ['oki'];
 include __DIR__ . '/../includes/header.php';
 $flash = get_flash();
 $old = $_SESSION['old'] ?? []; unset($_SESSION['old']);
+
 $pre = ['tgl_pinjam' => tgl_valid(get_str('dari')) ? get_str('dari') : '', 'tgl_kembali' => tgl_valid(get_str('sampai')) ? get_str('sampai') : ''];
 $b = get_barang((int)($_GET['id'] ?? 0));
 if (!$b || $b['status'] !== 'aktif' || $b['org'] === $user['org'] || $b['org_verif'] !== 'terverifikasi') {

@@ -1,9 +1,10 @@
 <?php
 $page_title = "Katalog Barang";
-$wajib_login = [];
+// $wajib_login sengaja TIDAK didefinisikan: katalog bersifat publik, tamu boleh melihatnya.
 include __DIR__ . '/../includes/header.php';
 $flash = get_flash();
-$admin = $user['role'] === 'admin';
+$admin = $user && $user['role'] === 'admin';
+$oki = $user && $user['role'] === 'oki';
 
 // Filter pencarian (GET): nama/deskripsi, kategori, jenis OKI pemilik, rentang tanggal, hanya yang tersedia.
 $hari = date('Y-m-d');
@@ -49,7 +50,7 @@ $rentang = $dari === $sampai ? tgl_id($dari) : tgl_id($dari) . ' – ' . tgl_id(
  <div class="filter-aksi"><button type="submit">Cari</button> <a href="list.php">Reset</a></div>
  </form>
 
- <p class="catatan">Menampilkan <?php echo count($katalog); ?> barang. Ketersediaan dihitung untuk <?php echo e($rentang); ?>.</p>
+ <p class="catatan">Menampilkan <?php echo count($katalog); ?> barang. Ketersediaan dihitung untuk <?php echo e($rentang); ?>.<?php if (!$user): ?> <a href="../login.php">Login</a> untuk mengajukan peminjaman.<?php endif; ?></p>
  <div class="table-responsive">
  <table>
  <thead>
@@ -69,8 +70,10 @@ $rentang = $dari === $sampai ? tgl_id($dari) : tgl_id($dari) . ' – ' . tgl_id(
  <?php if ($admin): ?><td><?php echo badge($b['status']); ?></td><?php endif; ?>
  <td>
  <a href="kalender.php?id=<?php echo (int)$b['id']; ?>">Kalender</a>
- <?php if ($user['role'] === 'oki' && $user['org'] !== $b['org'] && $b['status'] === 'aktif' && $b['tersedia'] > 0): ?>
+ <?php if ($oki && $user['org'] !== $b['org'] && $b['status'] === 'aktif' && $b['tersedia'] > 0): ?>
  <a class="btn" href="../peminjaman/ajukan.php?id=<?php echo (int)$b['id']; ?>&amp;dari=<?php echo e($dari); ?>&amp;sampai=<?php echo e($sampai); ?>">Ajukan Pinjam</a>
+ <?php elseif (!$user && $b['status'] === 'aktif' && $b['tersedia'] > 0): ?>
+ <a class="btn" href="../login.php">Login untuk Meminjam</a>
  <?php elseif ($admin): ?>
  <form method="post" action="proses_aksi.php" class="inline" data-konfirmasi="<?php echo $b['status'] === 'aktif' ? 'Nonaktifkan' : 'Aktifkan'; ?> barang ini?"><?php echo csrf_field(); ?>
  <input type="hidden" name="aksi" value="toggle"><input type="hidden" name="id" value="<?php echo (int)$b['id']; ?>">
