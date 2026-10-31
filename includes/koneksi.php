@@ -1,6 +1,5 @@
 <?php
-// Koneksi PostgreSQL via PDO. Ubah nilai default di bawah, atau set environment variable
-// DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS.
+// Koneksi PostgreSQL via PDO
 date_default_timezone_set('Asia/Jakarta');
 
 function db(): PDO {
@@ -9,9 +8,9 @@ function db(): PDO {
 
     $host = getenv('DB_HOST') ?: 'localhost';
     $port = getenv('DB_PORT') ?: '5432';
-    $nama = getenv('DB_NAME') ?: 'sipinjam_oki';
+    $nama = getenv('DB_NAME') ?: 'sipinjam_oki'; 
     $user = getenv('DB_USER') ?: 'postgres';
-    $pass = getenv('DB_PASS') !== false ? getenv('DB_PASS') : 'admin';
+    $pass = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '12345';
 
     try {
         $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$nama", $user, $pass, [
@@ -22,8 +21,7 @@ function db(): PDO {
         $pdo->exec("SET TIME ZONE 'Asia/Jakarta'");
     } catch (PDOException $e) {
         http_response_code(500);
-        exit('Tidak bisa terhubung ke database PostgreSQL. Periksa pengaturan di includes/koneksi.php '
-           . 'dan pastikan ekstensi pdo_pgsql aktif.');
+        exit('Gagal terhubung ke database PostgreSQL!<br><b>Detail Error:</b> ' . htmlspecialchars($e->getMessage()));
     }
     return $pdo;
 }
