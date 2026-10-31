@@ -109,13 +109,31 @@ function statistik_beranda(?int $orgPemilik): array {
         (int)q_val("SELECT COUNT(*) FROM peminjaman WHERE pemilik_org_id = :o AND status = 'menunggu'", ['o' => $orgPemilik]);
     return array_map('intval', $s);
 }
-function daftar_org(bool $admin): array {
-    $sql = "SELECT o.id, o.nama, o.jenis, o.kontak, o.status_verifikasi AS verif, a.id AS akun_id, a.email, a.aktif
+
+function daftar_org(bool $hanya_aktif = false): array {
+    $sql = "SELECT o.id_organisasi as id,
+                   o.id_organisasi AS id_organisasi,
+                   o.id_organisasi AS akun_id, 
+                   o.nama_organisasi AS nama, 
+                   o.jenis_oki AS jenis,
+                   o.kontak,
+                   o.status_verifikasi AS verif,
+                   o.status_verifikasi AS status,
+                   u.email, 
+                   u.role,
+                   'aktif' AS aktif
             FROM organisasi o
-            LEFT JOIN LATERAL (SELECT id, email, aktif FROM pengguna WHERE org_id = o.id ORDER BY id LIMIT 1) a ON TRUE"
-         . ($admin ? '' : " WHERE o.status_verifikasi = 'terverifikasi'") . " ORDER BY o.id";
+            LEFT JOIN users u ON o.id_user = u.id_user";
+
+    if ($hanya_aktif) {
+        $sql .= " WHERE o.status_verifikasi = 'terverifikasi'";
+    }
+
+    $sql .= " ORDER BY o.nama_organisasi ASC";
+
     return q_all($sql);
-}
+}   
+
 function set_verifikasi(int $org, string $status): void {
     q("UPDATE organisasi SET status_verifikasi = :s WHERE id = :id", ['s' => $status, 'id' => $org]);
 }
@@ -174,27 +192,53 @@ function hapus_barang(int $id): void { q("DELETE FROM barang WHERE id = :id", ['
 
 /* ---------- pencarian, kalender, edit barang ---------- */
 // $f: q, kategori, jenis, dari, sampai, ada. Ketersediaan dihitung untuk rentang dari..sampai.
-function cari_barang(array $f, bool $semuaStatus = false): array {
-    $w = ["o.status_verifikasi = 'terverifikasi'"];
-    if (!$semuaStatus) $w[] = "b.status = 'aktif'";
-    $p = ['dari' => $f['dari'], 'sampai' => $f['sampai']];
-    if ($f['q'] !== '') {
-        $w[] = "(b.nama ILIKE :q1 OR b.deskripsi ILIKE :q2)";
-        $like = '%' . addcslashes($f['q'], '%_\\') . '%';
-        $p['q1'] = $like; $p['q2'] = $like;
+function cari_barang(array $f = [], bool $hanya_aktif = false): array {
+    $w = [];
+    $p = [];
+
+    // Pastikan key filter aman untuk dicek
+    if (!empty($f['kategori'])) { 
+        $w[] = "b.id_kategori = :kat"; 
+        $p['kat'] = $f['kategori']; 
     }
-    if ($f['kategori'] > 0) { $w[] = "b.kategori_id = :kat"; $p['kat'] = $f['kategori']; }
-    if ($f['jenis'] !== '') { $w[] = "o.jenis = :jenis"; $p['jenis'] = $f['jenis']; }
-    $rows = q_all("SELECT b.id, b.org_id AS org, o.nama AS org_nama, o.jenis, k.nama AS kategori, b.nama, b.deskripsi, b.status,
-            b.jumlah_total AS total, b.kondisi, b.maks_hari AS maks,
-            b.jumlah_total - " . HITUNG_STOK . " AND p.tgl_pinjam <= :sampai AND p.tgl_rencana >= :dari), 0) AS tersedia
-        FROM barang b
-        JOIN organisasi o ON o.id = b.org_id
-        JOIN kategori k ON k.id = b.kategori_id
-        WHERE " . implode(' AND ', $w) . "
-        ORDER BY b.nama, b.id", $p);
-    $rows = array_map(fn($r) => ints($r, 'id', 'org', 'total', 'maks', 'tersedia'), $rows);
-    if (!empty($f['ada'])) $rows = array_values(array_filter($rows, fn($r) => $r['tersedia'] > 0));
+    if (!empty($f['jenis'])) { 
+        $w[] = "o.jenis_oki = :jenis"; 
+        $p['jenis'] = $f['jenis']; 
+    }
+
+    $sql = "SELECT b.id_barang AS id, 
+                   b.id_organisasi AS org, 
+                   o.nama_organisasi AS org_name, 
+                   o.jenis_oki AS jenis, 
+                   k.nama_kategori AS kategori, 
+                   b.nama_barang AS nama, 
+                   b.deskripsi, 
+                   b.status,
+                   b.jumlah AS total, 
+                   b.kondisi, 
+                   b.jumlah AS maks,
+                   b.jumlah AS tersedia
+            FROM barang b
+            JOIN organisasi o ON o.id_organisasi = b.id_organisasi
+            JOIN kategori k ON k.id_kategori = b.id_kategori";
+
+    if (!empty($w)) {
+        $sql .= " WHERE " . implode(' AND ', $w);
+    }
+
+    $sql .= " ORDER BY b.nama_barang, b.id_barang";
+    
+    $rows = q_all($sql, $p);
+    
+    // Pastikan fungsi ints tersedia atau mapping aman
+    if (function_exists('ints')) {
+        $rows = array_map(fn($r) => ints($r, 'id', 'org', 'total', 'maks', 'tersedia'), $rows);
+    }
+
+    if (!empty($f['ada'])) {
+        $rows = array_values(array_filter($rows, fn($r) => $r['tersedia'] > 0));
+    }
+
     return $rows;
 }
 // Jumlah unit terpakai (disetujui/dipinjam) untuk setiap hari pada rentang awal..akhir. Hasil: ['YYYY-MM-DD' => int].
@@ -419,34 +463,72 @@ const SQL_PINJAM = "SELECT p.id, p.peminjam_org_id AS peminjam, p.pemilik_org_id
     JOIN organisasi wo ON wo.id = p.pemilik_org_id";
 
 // $peran: 'semua' (admin), 'masuk' (OKI sebagai pemilik), 'keluar' (OKI sebagai peminjam)
-function daftar_peminjaman($filter = 'semua', int $id_org = 0): array {
+function daftar_peminjaman($status = 'semua'): array {
     $sql = "SELECT p.id_peminjaman AS id, 
-                   op.nama_organisasi AS peminjam_nama,
-                   om.nama_organisasi AS pemilik_nama,
-                   p.tgl_pinjam, 
+                   p.keperluan AS keperluan,
+                   p.keperluan AS item_teks,
+                   p.alasan_penolakan AS alasan,
+                   p.status,
+                   p.tgl_pinjam,
                    p.tgl_kembali_rencana AS tgl_rencana,
-                   p.status
+                   'Organisasi' AS peminjam_nama,
+                   'BEM' AS pemilik_nama
+            FROM peminjaman p";
+
+    if ($status !== 'semua') {
+        $sql .= " WHERE p.status = :status";
+        $params['status'] = $status;
+    }
+
+    $sql .= " ORDER BY p.tgl_pinjam DESC";
+
+    return q_all($sql, $params ?? []);
+}
+
+function get_peminjaman($id) {
+    $sql = "SELECT p.*, 
+                   p.id_peminjaman AS id,
+                   p.tgl_kembali_rencana AS tgl_rencana,
+                   p.tgl_kembali_aktual AS tgl_aktual,
+                   po.nama_organisasi AS peminjam_nama,
+                   po.jenis_oki AS peminjam_jenis,
+                   po.kontak AS peminjam_kontak,
+                   pk.nama_organisasi AS pemilik_nama
             FROM peminjaman p
-            LEFT JOIN organisasi op ON p.id_organisasi_peminjam = op.id_organisasi
-            LEFT JOIN organisasi om ON p.id_organisasi_pemilik = om.id_organisasi";
-            
-    // Tambahkan kondisi filter status atau organisasi jika ada...
-    // Sesuaikan bagian bawah fungsi ini dengan logika asli Anda
-    
-    return q_all($sql);
+            LEFT JOIN organisasi po ON po.id_organisasi = p.id_organisasi_peminjam
+            LEFT JOIN organisasi pk ON pk.id_organisasi = p.id_organisasi_pemilik
+            WHERE p.id_peminjaman = :id";
+
+    return q_row($sql, ['id' => $id]);
 }
-function get_peminjaman(int $id): ?array {
-    return ints(q_row(SQL_PINJAM . ' WHERE p.id = :id', ['id' => $id]), 'id', 'peminjam', 'pemilik');
+
+function item_peminjaman($pid): array {
+    $sql = "SELECT b.nama_barang AS nama, 
+                   pi.jumlah, 
+                   pi.kondisi_keluar, 
+                   pi.kondisi_kembali, 
+                   pi.catatan_kerusakan AS cr,
+                   pi.catatan_kerusakan AS catatan
+            FROM detail_peminjaman pi
+            JOIN barang b ON b.id_barang = pi.id_barang
+            WHERE pi.id_peminjaman = :pid";
+
+    return q_all($sql, ['pid' => $pid]);
 }
-function item_peminjaman(int $pid): array {
-    return q_all("SELECT b.nama, pi.jumlah, pi.kondisi_keluar AS kk, pi.kondisi_kembali AS kb, pi.catatan_kembali AS cr
-        FROM peminjaman_item pi JOIN barang b ON b.id = pi.barang_id WHERE pi.peminjaman_id = :p ORDER BY pi.id", ['p' => $pid]);
-}
-function riwayat_peminjaman(int $pid): array {
-    return q_all("SELECT to_char(r.waktu, 'DD/MM/YYYY HH24:MI') AS waktu, u.nama AS user_nama,
-            r.status_lama AS lama, r.status_baru AS baru, r.keterangan AS ket
-        FROM riwayat_status r JOIN pengguna u ON u.id = r.pengguna_id
-        WHERE r.peminjaman_id = :p ORDER BY r.id", ['p' => $pid]);
+
+function riwayat_peminjaman($pid): array {
+    $sql = "SELECT to_char(l.waktu_perubahan, 'DD/MM/YYYY HH24:MI') AS waktu,
+                   to_char(l.waktu_perubahan, 'DD/MM/YYYY HH24:MI') AS tanggal,
+                   COALESCE(u.email, 'Sistem') AS user_nama,
+                   l.status_lama AS lama,
+                   l.status_baru AS baru,
+                   l.catatan AS ket
+            FROM log_status l
+            LEFT JOIN users u ON u.id_user = l.id_user
+            WHERE l.id_peminjaman = :pid
+            ORDER BY l.waktu_perubahan DESC";
+
+    return q_all($sql, ['pid' => $pid]);
 }
 
 // Buat pengajuan. Mengembalikan id peminjaman, atau null bila stok habis (dicek ulang dengan kunci baris barang).
