@@ -4,7 +4,8 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/data.php';
 $user = require_login();
 $admin = $user['role'] === 'admin';
-$orgFilter = $admin ? 0 : $user['org'];
+$org_id = $user['org'] ?? ($user['id_organisasi'] ?? ($_SESSION['org'] ?? 0));
+$orgFilter = $admin ? 0 : $org_id;
 
 $jenis = get_str('jenis');
 if (!in_array($jenis, $JENIS_OKI, true)) $jenis = '';

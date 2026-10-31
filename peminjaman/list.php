@@ -3,10 +3,12 @@ $page_title = "Peminjaman";
 $wajib_login = [];
 include __DIR__ . '/../includes/header.php';
 $flash = get_flash();
-$admin = $user['role'] === 'admin';
+$admin = isset($user['role']) && $user['role'] === 'admin';
+$org_id = $user['org'] ?? ($user['id_organisasi'] ?? 0);
+
 $semua = $admin ? daftar_peminjaman('semua') : [];
-$masuk = $admin ? [] : daftar_peminjaman('masuk', $user['org']);
-$keluar = $admin ? [] : daftar_peminjaman('keluar', $user['org']);
+$masuk = $admin ? [] : daftar_peminjaman('masuk', $org_id);
+$keluar = $admin ? [] : daftar_peminjaman('keluar', $org_id);
 $KOND = $KONDISI;
 
 function aksi_form(string $aksi, int $id, string $label, string $extra = '', string $kelas = ''): void {

@@ -141,7 +141,12 @@ function toggle_akun_org(int $org): void { q("UPDATE pengguna SET aktif = NOT ak
 
 /* ---------- barang ---------- */
 function daftar_kategori(): array { return q_all("SELECT id, nama FROM kategori ORDER BY id"); }
-function kategori_ada(int $id): bool { return (bool)q_val("SELECT 1 FROM kategori WHERE id = :id", ['id' => $id]); }
+
+function kategori_ada($id): bool {
+    $sql = "SELECT 1 FROM kategori WHERE id_kategori = :id";
+    return (bool) q_val($sql, ['id' => $id]);
+}
+
 
 function katalog_barang(string $hari): array {
     $rows = q_all("SELECT b.id, b.org_id AS org, o.nama AS org_nama, k.nama AS kategori, b.nama,
@@ -289,30 +294,54 @@ function ubah_barang(int $id, int $kategori, string $nama, string $deskripsi, in
 
 /* ---------- kategori (admin) ---------- */
 function kategori_dengan_jumlah(): array {
-    return q_all("SELECT k.id, k.nama, (SELECT COUNT(*) FROM barang b WHERE b.kategori_id = k.id) AS jumlah FROM kategori k ORDER BY k.id");
+    $sql = "SELECT k.id_kategori AS id, 
+                   k.id_kategori, 
+                   k.nama_kategori AS nama,
+                   (SELECT COUNT(*) FROM barang b WHERE b.id_kategori = k.id_kategori) AS jumlah
+            FROM kategori k
+            ORDER BY k.nama_kategori ASC";
+
+    return q_all($sql);
 }
+
 function simpan_kategori(int $id, string $nama): ?string {
-    if (q_val("SELECT 1 FROM kategori WHERE lower(nama) = lower(:n) AND id <> :id", ['n' => $nama, 'id' => $id])) return 'Nama kategori sudah ada.';
+    if (q_val("SELECT 1 FROM kategori WHERE lower(nama_kategori) = lower(:n) AND id_kategori <> :id", ['n' => $nama, 'id' => $id])) return 'Nama kategori sudah ada.';
     try {
-        if ($id === 0) q("INSERT INTO kategori (nama) VALUES (:n)", ['n' => $nama]);
-        else q("UPDATE kategori SET nama = :n WHERE id = :id", ['n' => $nama, 'id' => $id]);
+        if ($id === 0) {
+            q("INSERT INTO kategori (nama_kategori) VALUES (:n)", ['n' => $nama]);
+        } else {
+            q("UPDATE kategori SET nama_kategori = :n WHERE id_kategori = :id", ['n' => $nama, 'id' => $id]);
+        }
         return null;
     } catch (PDOException $e) {
         if (kode_unik($e)) return 'Nama kategori sudah ada.';
         throw $e;
     }
 }
+
 function hapus_kategori(int $id): ?string {
-    if (q_val("SELECT 1 FROM barang WHERE kategori_id = :id LIMIT 1", ['id' => $id])) return 'Kategori masih dipakai barang, tidak bisa dihapus.';
-    q("DELETE FROM kategori WHERE id = :id", ['id' => $id]);
-    return null;
+    if (q_val("SELECT 1 FROM barang WHERE id_kategori = :id LIMIT 1", ['id' => $id])) {
+        return 'Kategori tidak dapat dihapus karena masih digunakan oleh barang.';
+    }
+    
+    try {
+        q("DELETE FROM kategori WHERE id_kategori = :id", ['id' => $id]);
+        return null;
+    } catch (PDOException $e) {
+        throw $e;
+    }
 }
 
 /* ---------- profil & akun ---------- */
 function get_org(int $id): ?array {
     return ints(q_row("SELECT id, nama, jenis, kontak, status_verifikasi AS verif FROM organisasi WHERE id = :id", ['id' => $id]), 'id');
 }
-function nama_pengurus(int $uid): string { return (string)q_val("SELECT nama FROM pengguna WHERE id = :id", ['id' => $uid]); }
+function nama_pengurus($user_id) {
+    // Jika tabel users menyimpan informasi akun:
+    $sql = "SELECT email FROM users WHERE id_user = :user_id";
+    return q_val($sql, ['user_id' => $user_id]);
+}
+
 function ubah_profil(int $org, int $uid, string $nama, string $jenis, string $kontak, string $pengurus): ?string {
     try {
         return transaksi(function () use ($org, $uid, $nama, $jenis, $kontak, $pengurus) {
@@ -325,12 +354,27 @@ function ubah_profil(int $org, int $uid, string $nama, string $jenis, string $ko
         throw $e;
     }
 }
-function ganti_password(int $uid, string $lama, string $baru): ?string {
-    $h = q_val("SELECT password_hash FROM pengguna WHERE id = :id", ['id' => $uid]);
-    if (!$h || !password_verify($lama, (string)$h)) return 'Password lama salah.';
-    q("UPDATE pengguna SET password_hash = :h WHERE id = :id", ['h' => password_hash($baru, PASSWORD_DEFAULT), 'id' => $uid]);
-    return null;
+
+function ganti_password($user_id, $password_lama, $password_baru) {
+    // 1. Ambil password_hash dari tabel users berdasarkan id_user
+    $sql = "SELECT password_hash FROM users WHERE id_user = :user_id";
+    $hash = q_val($sql, ['user_id' => $user_id]);
+
+    if (!$hash || !password_verify($password_lama, $hash)) {
+        return false; // Password lama salah
+    }
+
+    // 2. Update dengan password_hash yang baru
+    $new_hash = password_hash($password_baru, PASSWORD_DEFAULT);
+    $update_sql = "UPDATE users SET password_hash = :hash WHERE id_user = :user_id";
+    
+    // Eksekusi kueri update
+    $result = q($update_sql, ['hash' => $new_hash, 'user_id' => $user_id]);
+    
+    // Pastikan mengembalikan boolean true jika berhasil
+    return $result !== false;
 }
+
 function org_punya_peminjaman(int $id): bool {
     return (bool)q_val("SELECT 1 FROM peminjaman WHERE peminjam_org_id = :a OR pemilik_org_id = :b LIMIT 1", ['a' => $id, 'b' => $id]);
 }
@@ -388,57 +432,92 @@ function peminjaman_terbaru(int $id_org = 0, int $limit = 5): array {
 }
 /* ---------- laporan ---------- */
 // Riwayat peminjaman yang tanggal pinjamnya jatuh pada bulan $bulan (YYYY-MM). $org = 0 untuk semua OKI.
-function laporan_peminjaman(string $bulan, int $org, string $jenis, int $kategori): array {
-    $awal = $bulan . '-01';
-    $akhir = (new DateTime($awal))->modify('+1 month')->format('Y-m-d');
-    $w = ["p.tgl_pinjam >= CAST(:awal AS date)", "p.tgl_pinjam < CAST(:akhir AS date)"];
-    $p = ['awal' => $awal, 'akhir' => $akhir];
-    if ($org > 0) { $w[] = "(p.peminjam_org_id = :o1 OR p.pemilik_org_id = :o2)"; $p['o1'] = $org; $p['o2'] = $org; }
-    if ($jenis !== '') { $w[] = "po.jenis = :jenis"; $p['jenis'] = $jenis; }
-    if ($kategori > 0) {
-        $w[] = "EXISTS (SELECT 1 FROM peminjaman_item pi2 JOIN barang b2 ON b2.id = pi2.barang_id
-                        WHERE pi2.peminjaman_id = p.id AND b2.kategori_id = :kat)";
-        $p['kat'] = $kategori;
+function laporan_peminjaman($bulan, $org_id, $status, $pemilik_id) {
+    $sql = "SELECT p.*, 
+                   p.id_peminjaman AS id,
+                   po.nama_organisasi AS peminjam_nama,
+                   po.jenis_oki AS jenis_peminjam,
+                   pk.nama_organisasi AS pemilik_nama,
+                   (SELECT string_agg(b.nama_barang || ' ×' || pi.jumlah::text, ', ' ORDER BY pi.id_detail)
+                      FROM detail_peminjaman pi 
+                      JOIN barang b ON b.id_barang = pi.id_barang 
+                     WHERE pi.id_peminjaman = p.id_peminjaman) AS item_teks,
+                   (SELECT string_agg(DISTINCT k.nama_kategori, ', ')
+                      FROM detail_peminjaman pi 
+                      JOIN barang b ON b.id_barang = pi.id_barang 
+                      JOIN kategori k ON k.id_kategori = b.id_kategori
+                     WHERE pi.id_peminjaman = p.id_peminjaman) AS kategori_teks
+            FROM peminjaman p
+            LEFT JOIN organisasi po ON po.id_organisasi = p.id_organisasi_peminjam
+            LEFT JOIN organisasi pk ON pk.id_organisasi = p.id_organisasi_pemilik
+            WHERE 1=1";
+            
+    $params = [];
+
+    // Filter Bulan Pengajuan
+    if (!empty($bulan)) {
+        $sql .= " AND to_char(p.tgl_pengajuan, 'YYYY-MM') = :bulan";
+        $params['bulan'] = $bulan;
     }
-    return q_all("SELECT p.id, po.nama AS peminjam_nama, po.jenis AS jenis_peminjam, wo.nama AS pemilik_nama, p.keperluan,
-            p.tgl_pinjam, p.tgl_rencana, p.tgl_aktual, p.status,
-            (SELECT string_agg(b.nama || ' ×' || pi.jumlah::text, ', ' ORDER BY pi.id)
-               FROM peminjaman_item pi JOIN barang b ON b.id = pi.barang_id WHERE pi.peminjaman_id = p.id) AS item_teks,
-            (SELECT string_agg(DISTINCT k.nama, ', ')
-               FROM peminjaman_item pi JOIN barang b ON b.id = pi.barang_id JOIN kategori k ON k.id = b.kategori_id
-              WHERE pi.peminjaman_id = p.id) AS kategori_teks
-        FROM peminjaman p
-        JOIN organisasi po ON po.id = p.peminjam_org_id
-        JOIN organisasi wo ON wo.id = p.pemilik_org_id
-        WHERE " . implode(' AND ', $w) . "
-        ORDER BY p.tgl_pinjam, p.id", $p);
+
+    // Filter Organisasi Peminjam
+    if (!empty($org_id) && $org_id > 0) {
+        $sql .= " AND p.id_organisasi_peminjam = :org_id";
+        $params['org_id'] = $org_id;
+    }
+
+    // Filter Status Peminjaman
+    if (!empty($status)) {
+        $sql .= " AND p.status = :status";
+        $params['status'] = $status;
+    }
+
+    // Filter Organisasi Pemilik Barang
+    if (!empty($pemilik_id) && $pemilik_id > 0) {
+        $sql .= " AND p.id_organisasi_pemilik = :pemilik_id";
+        $params['pemilik_id'] = $pemilik_id;
+    }
+
+    $sql .= " ORDER BY p.tgl_pinjam DESC, p.id_peminjaman DESC";
+
+    return q_all($sql, $params);
 }
 // Ringkasan inventaris aktif beserta pemantauan hari ini. $org = 0 untuk semua OKI.
-function inventaris(int $org, int $kategori, string $jenis): array {
-    $w = ["b.status = 'aktif'"];
-    $hari = date('Y-m-d');
-    $p = ['h1' => $hari, 'dari' => $hari, 'sampai' => $hari];
-    if ($org > 0) { $w[] = "b.org_id = :org"; $p['org'] = $org; }
-    if ($kategori > 0) { $w[] = "b.kategori_id = :kat"; $p['kat'] = $kategori; }
-    if ($jenis !== '') { $w[] = "o.jenis = :jenis"; $p['jenis'] = $jenis; }
-    $rows = q_all("SELECT b.id, b.nama, k.nama AS kategori, o.nama AS org_nama, o.jenis, b.jumlah_total AS total, b.kondisi, b.lokasi,
-            COALESCE((SELECT SUM(pi.jumlah) FROM peminjaman_item pi JOIN peminjaman p ON p.id = pi.peminjaman_id
-                WHERE pi.barang_id = b.id AND p.status = 'dipinjam'), 0) AS keluar,
-            COALESCE((SELECT SUM(pi.jumlah) FROM peminjaman_item pi JOIN peminjaman p ON p.id = pi.peminjaman_id
-                WHERE pi.barang_id = b.id AND p.status = 'dipinjam' AND p.tgl_rencana < CAST(:h1 AS date)), 0) AS terlambat,
-            " . HITUNG_STOK . " AND p.tgl_pinjam <= :sampai AND p.tgl_rencana >= :dari), 0) AS dipakai
-        FROM barang b
-        JOIN organisasi o ON o.id = b.org_id
-        JOIN kategori k ON k.id = b.kategori_id
-        WHERE " . implode(' AND ', $w) . "
-        ORDER BY o.nama, b.nama", $p);
-    $rows = array_map(fn($r) => ints($r, 'id', 'total', 'keluar', 'terlambat', 'dipakai'), $rows);
-    foreach ($rows as &$r) {
-        $r['tersedia'] = max(0, $r['total'] - $r['dipakai'] - $r['terlambat']);
-        $r['pantau'] = status_pantau($r);
+function inventaris($kategori_id = 0, $org_id = 0, $status = '') {
+    $sql = "SELECT b.*, 
+                   b.id_barang AS id,
+                   b.nama_barang AS nama,
+                   b.jumlah AS total,
+                   b.jumlah AS tersedia,
+                   0 AS keluar,
+                   0 AS terlambat,
+                   k.nama_kategori AS kategori,
+                   o.nama_organisasi AS organisasi_nama
+            FROM barang b
+            LEFT JOIN kategori k ON k.id_kategori = b.id_kategori
+            LEFT JOIN organisasi o ON o.id_organisasi = b.id_organisasi
+            WHERE 1=1";
+            
+    $params = [];
+
+    if (!empty($kategori_id) && $kategori_id > 0) {
+        $sql .= " AND b.id_kategori = :kategori_id";
+        $params['kategori_id'] = $kategori_id;
     }
-    unset($r);
-    return $rows;
+
+    if (!empty($org_id) && $org_id > 0) {
+        $sql .= " AND b.id_organisasi = :org_id";
+        $params['org_id'] = $org_id;
+    }
+
+    if (!empty($status)) {
+        $sql .= " AND b.status = :status";
+        $params['status'] = $status;
+    }
+
+    $sql .= " ORDER BY b.nama_barang ASC";
+
+    return q_all($sql, $params);
 }
 
 /* ---------- logika peminjaman ---------- */
@@ -595,11 +674,29 @@ function jumlah_notif_baru($id_user) {
     $sql = "SELECT COUNT(*) FROM notifikasi WHERE id_user = :uid AND is_dibaca = false";
     return q_val($sql, ['uid' => $id_user]);
 }
-function daftar_notifikasi(int $uid): array {
-    return q_all("SELECT id, peminjaman_id AS pid, judul, pesan, sudah_baca AS baca, to_char(waktu, 'DD/MM/YYYY HH24:MI') AS waktu
-        FROM notifikasi WHERE pengguna_id = :u ORDER BY id DESC", ['u' => $uid]);
+
+function daftar_notifikasi($user_id) {
+    $sql = "SELECT id_notifikasi AS id, 
+                   id_notifikasi,
+                   id_peminjaman AS pid, 
+                   pesan AS judul, 
+                   pesan, 
+                   is_dibaca AS dibaca, 
+                   created_at AS waktu
+            FROM notifikasi
+            WHERE id_user = :user_id
+            ORDER BY created_at DESC";
+
+    return q_all($sql, ['user_id' => $user_id]);
 }
-function tandai_notif_dibaca(int $uid): void { q("UPDATE notifikasi SET sudah_baca = TRUE WHERE pengguna_id = :u AND NOT sudah_baca", ['u' => $uid]); }
+
+function tandai_notif_dibaca($user_id) {
+    $sql = "UPDATE notifikasi 
+            SET is_dibaca = TRUE 
+            WHERE id_user = :user_id";
+            
+    return q($sql, ['user_id' => $user_id]);
+}
 
 /* ---------- reset data demo ---------- */
 function reset_data_demo(): void { db()->exec(file_get_contents(dirname(__DIR__) . '/database/seed.sql')); }

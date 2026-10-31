@@ -11,7 +11,7 @@ $mine = daftar_notifikasi($user['id']);
  <?php else: ?>
  <ul class="notif">
  <?php foreach ($mine as $n): ?>
- <li class="<?php echo $n['baca'] ? '' : 'baru'; ?>">
+ <li class="<?php echo $n['dibaca'] ? '' : 'baru'; ?>">
  <strong><?php echo e($n['judul']); ?></strong> <small><?php echo e($n['waktu']); ?></small><br>
  <?php echo e($n['pesan']); ?>
  <a href="peminjaman/detail.php?id=<?php echo (int)$n['pid']; ?>">Lihat</a>

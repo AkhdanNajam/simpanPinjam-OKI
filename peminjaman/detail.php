@@ -3,10 +3,10 @@ $page_title = "Detail Peminjaman";
 $wajib_login = [];
 include __DIR__ . '/../includes/header.php';
 $p = get_peminjaman((int)($_GET['id'] ?? 0));
-if (!$p || ($user['role'] !== 'admin' && $p['peminjam'] !== $user['org'] && $p['pemilik'] !== $user['org'])) {
-    set_flash('error', 'Peminjaman tidak ditemukan.');
-    redirect('peminjaman/list.php');
-}
+
+$id_peminjam = $user['peminjam'] ?? ($user['id_peminjam'] ?? 0);
+$org_id = $user['org'] ?? ($user['id_organisasi'] ?? ($_SESSION['org'] ?? 0));
+
 ?>
  <section>
  <h2>Peminjaman #<?php echo (int)$p['id']; ?> <?php echo badge(status_tampil($p)); ?></h2>
