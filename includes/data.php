@@ -542,26 +542,54 @@ const SQL_PINJAM = "SELECT p.id, p.peminjam_org_id AS peminjam, p.pemilik_org_id
     JOIN organisasi wo ON wo.id = p.pemilik_org_id";
 
 // $peran: 'semua' (admin), 'masuk' (OKI sebagai pemilik), 'keluar' (OKI sebagai peminjam)
-function daftar_peminjaman($status = 'semua'): array {
-    $sql = "SELECT p.id_peminjaman AS id, 
-                   p.keperluan AS keperluan,
-                   p.keperluan AS item_teks,
-                   p.alasan_penolakan AS alasan,
-                   p.status,
-                   p.tgl_pinjam,
-                   p.tgl_kembali_rencana AS tgl_rencana,
-                   'Organisasi' AS peminjam_nama,
-                   'BEM' AS pemilik_nama
-            FROM peminjaman p";
-
-    if ($status !== 'semua') {
-        $sql .= " WHERE p.status = :status";
-        $params['status'] = $status;
+function daftar_peminjaman(string $mode, int $org_id = 0) {
+    // Sesuaikan dengan struktur database PostgreSQL Anda:
+    // peminjaman memiliki id_organisasi_peminjam dan id_organisasi_pemilik
+    if ($mode === 'semua') {
+        $sql = "SELECT p.*, 
+                       op.nama_organisasi AS peminjam_nama, op.jenis_oki AS jenis_peminjam,
+                       om.nama_organisasi AS pemilik_nama,
+                       b.nama_barang AS item_teks, k.nama_kategori AS kategori_teks
+                FROM peminjaman p
+                JOIN organisasi op ON p.id_organisasi_peminjam = op.id_organisasi
+                JOIN organisasi om ON p.id_organisasi_pemilik = om.id_organisasi
+                JOIN detail_peminjaman dp ON p.id_peminjaman = dp.id_peminjaman
+                JOIN barang b ON dp.id_barang = b.id_barang
+                JOIN kategori k ON b.id_kategori = k.id_kategori
+                ORDER BY p.tgl_pengajuan DESC";
+        return q_all($sql);
+    } elseif ($mode === 'masuk') {
+        // Barang milik OKI tersebut yang dipinjam orang lain
+        $sql = "SELECT p.*, 
+                       op.nama_organisasi AS peminjam_nama, op.jenis_oki AS jenis_peminjam,
+                       om.nama_organisasi AS pemilik_nama,
+                       b.nama_barang AS item_teks, k.nama_kategori AS kategori_teks
+                FROM peminjaman p
+                JOIN organisasi op ON p.id_organisasi_peminjam = op.id_organisasi
+                JOIN organisasi om ON p.id_organisasi_pemilik = om.id_organisasi
+                JOIN detail_peminjaman dp ON p.id_peminjaman = dp.id_peminjaman
+                JOIN barang b ON dp.id_barang = b.id_barang
+                JOIN kategori k ON b.id_kategori = k.id_kategori
+                WHERE p.id_organisasi_pemilik = :org_id
+                ORDER BY p.tgl_pengajuan DESC";
+        return q_all($sql, ['org_id' => $org_id]);
+    } elseif ($mode === 'keluar') {
+        // Pengajuan oleh OKI tersebut ke tempat lain
+        $sql = "SELECT p.*, 
+                       op.nama_organisasi AS peminjam_nama, op.jenis_oki AS jenis_peminjam,
+                       om.nama_organisasi AS pemilik_nama,
+                       b.nama_barang AS item_teks, k.nama_kategori AS kategori_teks
+                FROM peminjaman p
+                JOIN organisasi op ON p.id_organisasi_peminjam = op.id_organisasi
+                JOIN organisasi om ON p.id_organisasi_pemilik = om.id_organisasi
+                JOIN detail_peminjaman dp ON p.id_peminjaman = dp.id_peminjaman
+                JOIN barang b ON dp.id_barang = b.id_barang
+                JOIN kategori k ON b.id_kategori = k.id_kategori
+                WHERE p.id_organisasi_peminjam = :org_id
+                ORDER BY p.tgl_pengajuan DESC";
+        return q_all($sql, ['org_id' => $org_id]);
     }
-
-    $sql .= " ORDER BY p.tgl_pinjam DESC";
-
-    return q_all($sql, $params ?? []);
+    return [];
 }
 
 function get_peminjaman($id) {
