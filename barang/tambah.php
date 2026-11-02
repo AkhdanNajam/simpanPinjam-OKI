@@ -38,8 +38,6 @@ $old = $_SESSION['old'] ?? []; unset($_SESSION['old']);
  <?php endforeach; ?>
  </select>
 
- <label for="lokasi">Lokasi Penyimpanan</label>
- <input type="text" id="lokasi" name="lokasi" value="<?php echo e($old['lokasi'] ?? ''); ?>">
 
  <button type="submit">Simpan</button>
  </form>
