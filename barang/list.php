@@ -20,12 +20,18 @@ $katalog = cari_barang($f, $admin);
 $rentang = $dari === $sampai ? tgl_id($dari) : tgl_id($dari) . ' – ' . tgl_id($sampai);
 ?>
  <section>
- <h2>Katalog Barang</h2>
- <?php if ($flash): ?>
- <p class="flash flash-<?php echo e($flash['type']); ?>"><?php echo e($flash['pesan']); ?></p>
- <?php endif; ?>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <h2>Katalog Barang</h2>
+    <?php if (!empty($user['org']) || !empty($oki)): ?>
+        <a href="tambah.php" class="btn" style="background-color: #0d6efd; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px;">+ Tambah Barang</a>
+    <?php endif; ?>
+</div>
 
- <form method="get" action="list.php" class="filter-bar">
+<?php if ($flash): ?>
+<p class="flash flash-<?php echo e($flash['type']); ?>"><?php echo e($flash['pesan']); ?></p>
+<?php endif; ?>
+
+<form method="get" action="list.php" class="filter-bar">
  <div><label for="q">Nama / deskripsi</label>
  <input type="text" id="q" name="q" value="<?php echo e($f['q']); ?>" placeholder="mis. proyektor"></div>
  <div><label for="kategori">Kategori</label>

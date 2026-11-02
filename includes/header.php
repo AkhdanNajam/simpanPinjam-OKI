@@ -45,19 +45,19 @@ $notifLabel = 'Notifikasi' . ($jumlahNotif ? ' <span class="pill">' . (int)$juml
   <button type="button" id="nav-toggle-btn" class="nav-toggle-label" aria-label="Menu">&#9776;</button>
   <nav>
    <ul>
-    <!-- Menu utama yang bisa diakses publik (tamu & user) -->
+    <!-- Menu utama yang selalu tampil -->
     <?php echo nav_link($base, 'index.php', 'Beranda'); ?>
-    <?php echo nav_link($base, 'barang/list.php', 'Katalog Barang'); ?>
     <?php echo nav_link($base, 'oki/list.php', 'Daftar OKI'); ?>
+    <?php echo nav_link($base, 'barang/list.php', 'Daftar Barang'); ?>
 
     <?php if ($user): ?>
-     <!-- Menu khusus pengguna yang sudah login -->
+     <!-- Menu khusus role 'oki' -->
      <?php if ($user['role'] === 'oki'): ?>
       <?php echo nav_link($base, 'barang/saya.php', 'Barang Saya'); ?>
       <?php echo nav_link($base, 'barang/tambah.php', 'Tambah Barang'); ?>
      <?php endif; ?>
 
-     <?php echo nav_link($base, 'peminjaman/list.php', 'Peminjaman'); ?>
+     <?php echo nav_link($base, 'peminjaman/list.php', 'Daftar Peminjaman'); ?>
 
      <?php if ($user['role'] === 'admin'): ?>
       <?php echo nav_link($base, 'kategori/list.php', 'Kategori'); ?>
@@ -66,29 +66,37 @@ $notifLabel = 'Notifikasi' . ($jumlahNotif ? ' <span class="pill">' . (int)$juml
      <?php echo nav_link($base, 'laporan/peminjaman.php', 'Laporan'); ?>
      <?php echo nav_link($base, 'notifikasi.php', $notifLabel); ?>
      <?php echo nav_link($base, 'profil.php', 'Profil'); ?>
-
-     <li>
-      <form method="post" action="<?php echo $base; ?>logout.php" class="inline nav-logout">
-       <?php echo csrf_field(); ?>
-       <button type="submit">Logout</button>
-      </form>
-     </li>
     <?php else: ?>
-     <!-- Menu untuk tamu yang belum login -->
      <?php echo nav_link($base, 'login.php', 'Login'); ?>
     <?php endif; ?>
    </ul>
 
-   <!-- Blok akun di bawah sidebar -->
-   <div class="akun">
-    <?php if ($user): ?>
-     <strong><?php echo e($user['nama'] ?? ''); ?></strong>
-     <?php echo $user['role'] === 'admin' ? 'Admin' : 'Pengelola OKI'; ?>
-    <?php else: ?>
-     <strong>Pengunjung</strong>
-     Belum login
-    <?php endif; ?>
+   <!-- Bagian Bawah: Tombol Log out, Garis Pemisah, dan Info Akun -->
+   <div style="margin-top: auto; width: 100%;">
+       <?php if ($user): ?>
+       <ul style="list-style: none; padding: 0; margin: 0;">
+        <li>
+         <form method="post" action="<?php echo $base; ?>logout.php" class="inline nav-logout" style="margin: 0;">
+          <?php echo csrf_field(); ?>
+          <button type="submit" style="width: 100%; text-align: left; background: transparent; border: none; color: inherit; cursor: pointer; padding: 10px 15px; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.1)'" onmouseout="this.style.background='transparent'">Log out</button>
+         </form>
+        </li>
+       </ul>
+       <?php endif; ?>
+
+       <hr style="border: none; border-top: 1px solid rgba(255, 255, 255, 0.2); margin: 5px 0;">
+
+       <div class="akun" style="padding: 10px 15px 15px 15px;">
+        <?php if ($user): ?>
+         <strong><?php echo e($user['nama'] ?? ''); ?></strong><br>
+         <small><?php echo $user['role'] === 'admin' ? 'Admin' : 'OKI'; ?></small>
+        <?php else: ?>
+         <strong>Pengunjung</strong><br>
+         <small>Belum login</small>
+        <?php endif; ?>
+       </div>
    </div>
   </nav>
+</nav>
  </header>
  <main>
