@@ -1,14 +1,14 @@
 <?php
 session_start();
-require_once __DIR__ . '/../includes/config.php';
-require_once __DIR__ . '/../includes/data.php';
+require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../../includes/data.php';
 require_login(['admin']);
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') redirect('oki/list.php');
-csrf_cek('oki/list.php');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') redirect('admin/organisasi/list.php');
+csrf_cek('admin/organisasi/list.php');
 
 $aksi = $_POST['aksi'] ?? '';
 $id = (int)($_POST['id'] ?? 0);
-if (!org_ada($id)) { set_flash('error', 'OKI tidak ditemukan.'); redirect('oki/list.php'); }
+if (!org_ada($id)) { set_flash('error', 'OKI tidak ditemukan.'); redirect('admin/organisasi/list.php'); }
 
 if ($aksi === 'ok' || $aksi === 'no') {
     set_verifikasi($id, $aksi === 'ok' ? 'terverifikasi' : 'ditolak');
@@ -22,4 +22,4 @@ if ($aksi === 'ok' || $aksi === 'no') {
 } else {
     set_flash('error', 'Aksi tidak dikenal.');
 }
-redirect('oki/list.php');
+redirect('admin/organisasi/list.php');

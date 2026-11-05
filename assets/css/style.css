@@ -181,3 +181,51 @@ table.kalender td.hari-ini { outline: 2px solid var(--biru); outline-offset: -2p
   section { border: 0; padding: 0; }
   main { max-width: none; margin: 0; padding: 0; }
 }
+/* ===== Dashboard Admin (mengikuti desain Figma) ===== */
+.dash-admin { --ungu: #2e2a66; --ungu-garis: #c9c8d6; }
+.dash-admin h2, .dash-admin h3 { color: var(--ungu); font-weight: 600; }
+.dash-admin h2 { font-size: 1.6rem; }
+.dash-admin h3 { font-size: 1rem; margin-top: 1.5rem; }
+
+/* kartu statistik: 3 kolom, angka + label sebaris */
+.dash-admin .stat-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0; background: #fff;
+  border: 1px solid var(--ungu-garis); border-radius: 20px;
+}
+.dash-admin .stat {
+  display: flex; align-items: baseline; gap: .75rem;
+  padding: 1rem 1.25rem; background: #fff;
+  border-right: 1px solid var(--ungu-garis);
+  border-bottom: 1px solid var(--ungu-garis);
+}
+.dash-admin .stat:nth-child(3n) { border-right: 0; }
+.dash-admin .stat:nth-last-child(-n+3) { border-bottom: 0; }
+.dash-admin .stat strong { display: inline; font-size: 2.4rem; font-weight: 500; color: var(--ungu); }
+.dash-admin .stat span { font-size: .9rem; color: var(--ungu); }
+
+/* tombol akses cepat */
+.dash-admin .akses-cepat .btn {
+  background: #fff; color: var(--ungu); border: 1px solid var(--ungu-garis);
+  border-radius: 10px; font-weight: 500; padding: .45rem 1rem;
+}
+.dash-admin .akses-cepat .btn:hover { background: #f1f0f8; }
+
+/* tabel: garis hanya di bawah judul kolom */
+.dash-admin .lihat-semua { color: var(--ungu); font-size: .75rem; }
+.dash-admin thead th { color: var(--ungu); font-weight: 500; border-bottom: 1px solid var(--ungu); }
+.dash-admin tbody td { border-bottom: 0; color: var(--ungu); }
+.dash-admin tbody td a { color: inherit; text-decoration: none; }
+
+/* badge: pil polos tanpa titik */
+.dash-admin .badge { font-size: .7rem; font-weight: 500; padding: .1rem .8rem; }
+.dash-admin .badge::before { display: none; }
+.dash-admin .st-menunggu { background: #fdd28a; color: #5a3a00; }
+
+@media (max-width: 800px) {
+  .dash-admin .stat-grid { grid-template-columns: 1fr 1fr; }
+  .dash-admin .stat:nth-child(3n) { border-right: 1px solid var(--ungu-garis); }
+  .dash-admin .stat:nth-child(2n) { border-right: 0; }
+  .dash-admin .stat:nth-last-child(-n+3) { border-bottom: 1px solid var(--ungu-garis); }
+  .dash-admin .stat:nth-last-child(-n+2) { border-bottom: 0; }
+}

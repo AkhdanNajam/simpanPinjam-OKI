@@ -1,10 +1,10 @@
 <?php
-$page_title = "Daftar OKI";
-$wajib_login = [];
-include __DIR__ . '/../includes/header.php';
+$page_title = "Verifikasi OKI";
+$wajib_login = ['admin'];
+include __DIR__ . '/../../includes/header.php';
 $flash = get_flash();
-$admin = $user['role'] === 'admin';
-$daftar = daftar_org($admin);
+$admin = true;
+$daftar = daftar_org(false);   // semua OKI, termasuk yang belum terverifikasi
 function aksi_oki(string $aksi, int $id, string $label, string $extra = '', string $kelas = '', string $konfirmasi = ''): void {
     echo '<form method="post" action="proses_aksi.php" class="inline"' . ($konfirmasi !== '' ? ' data-konfirmasi="' . e($konfirmasi) . '"' : '') . '>' . csrf_field()
         . '<input type="hidden" name="aksi" value="' . e($aksi) . '"><input type="hidden" name="id" value="' . $id . '">'
@@ -12,7 +12,7 @@ function aksi_oki(string $aksi, int $id, string $label, string $extra = '', stri
 }
 ?>
  <section>
- <h2>Daftar OKI</h2>
+ <h2>Verifikasi OKI</h2>
  <?php if ($flash): ?>
  <p class="flash flash-<?php echo e($flash['type']); ?>"><?php echo e($flash['pesan']); ?></p>
  <?php endif; ?>
@@ -48,4 +48,4 @@ function aksi_oki(string $aksi, int $id, string $label, string $extra = '', stri
  </table>
  </div>
  </section>
-<?php include __DIR__ . '/../includes/footer.php'; ?>
+<?php include __DIR__ . '/../../includes/footer.php'; ?>
