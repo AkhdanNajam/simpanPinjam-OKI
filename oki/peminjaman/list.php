@@ -52,7 +52,7 @@ function tabel_pinjam(array $rows, string $mode, array $KOND): void { ?>
  </td>
  <td>
 
- <a href="detail.php?id=<?php echo $id; ?>">Detail</a>
+ <a href="../../peminjaman/detail.php?id=<?php echo $id; ?>">Detail</a>
  <?php if ($mode === 'masuk'): ?>
  <?php if ($p['status'] === 'menunggu'):
  aksi_form('setuju', $id, 'Setujui');

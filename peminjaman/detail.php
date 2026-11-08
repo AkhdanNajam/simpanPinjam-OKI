@@ -1,6 +1,6 @@
 <?php
 $page_title = "Detail Peminjaman";
-$wajib_login = [];
+$wajib_login = ['admin', 'oki'];
 include __DIR__ . '/../includes/header.php';
 $p = get_peminjaman((int)($_GET['id'] ?? 0));
 
@@ -45,6 +45,6 @@ $org_id = $user['org'] ?? ($user['id_organisasi'] ?? ($_SESSION['org'] ?? 0));
  <li><small><?php echo e($l['waktu']); ?></small> &mdash; <?php echo e($l['user_nama']); ?>: <?php echo e($l['lama'] ?: 'baru'); ?> → <strong><?php echo e($l['baru']); ?></strong><?php if ($l['ket']): ?> (<?php echo e($l['ket']); ?>)<?php endif; ?></li>
  <?php endforeach; ?>
  </ul>
- <p><a href="list.php">&larr; Kembali</a></p>
+ <p><a href="<?php echo $base . ($user['role'] === 'admin' ? 'admin/' : 'oki/'); ?>peminjaman/list.php">&larr; Kembali</a></p>
  </section>
 <?php include __DIR__ . '/../includes/footer.php'; ?>

@@ -26,7 +26,7 @@ $terbaru = peminjaman_terbaru(0, 5);
   <a class="btn" href="organisasi/list.php">Verifikasi OKI</a>
   <a class="btn" href="kategori/list.php">Kelola Kategori</a>
   <a class="btn" href="peminjaman/list.php">Semua Peminjaman</a>
-  <a class="btn" href="laporan/peminjaman.php">Laporan</a>
+  <a class="btn" href="<?php echo $base; ?>laporan/peminjaman.php">Laporan</a>
  </p>
 
  <h3>Peminjaman Terbaru <a class="lihat-semua" href="peminjaman/list.php">Lihat Semua &rarr;</a></h3>
@@ -38,7 +38,7 @@ $terbaru = peminjaman_terbaru(0, 5);
     <tr><td colspan="5">Belum ada peminjaman.</td></tr>
    <?php else: $no = 1; foreach ($terbaru as $p): ?>
     <tr>
-     <td><a href="peminjaman/detail.php?id=<?php echo (int)$p['id']; ?>"><?php echo $no++; ?></a></td>
+     <td><a href="<?php echo $base; ?>peminjaman/detail.php?id=<?php echo (int)$p['id']; ?>"><?php echo $no++; ?></a></td>
      <td><?php echo e($p['item_teks']); ?></td>
      <td><?php echo e($p['peminjam_nama']); ?></td>
      <td><?php echo e($p['pemilik_nama']); ?></td>

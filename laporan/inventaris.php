@@ -2,7 +2,7 @@
 session_start();
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/data.php';
-$user = require_login();
+$user = require_login(['admin', 'oki']);
 $admin = $user['role'] === 'admin';
 $org_id = $user['org'] ?? ($user['id_organisasi'] ?? ($_SESSION['org'] ?? 0));
 $orgFilter = $admin ? 0 : $org_id;
@@ -23,13 +23,24 @@ ksort($perKategori);
 
 if (get_str('format') === 'csv') {
     $out = [];
-    foreach ($rows as $r) $out[] = [$r['org_nama'], $r['jenis'], $r['nama'], $r['kategori'], $r['total'], $r['keluar'], $r['tersedia'], $r['kondisi'], $r['lokasi'], $r['pantau']];
+    foreach ($rows as $r) $out[] = [
+        $r['org_nama'] ?? '-', 
+        $r['jenis'] ?? '-', 
+        $r['nama'] ?? '-', 
+        $r['kategori'] ?? '-', 
+        $r['total'] ?? 0, 
+        $r['keluar'] ?? 0, 
+        $r['tersedia'] ?? 0, 
+        $r['kondisi'] ?? '-', 
+        $r['lokasi'] ?? '-', 
+        $r['pantau'] ?? '-'
+    ];
     kirim_csv('laporan-inventaris-' . date('Y-m-d') . '.csv',
         ['OKI', 'Jenis OKI', 'Barang', 'Kategori', 'Jumlah Total', 'Sedang Dipinjam', 'Tersedia Hari Ini', 'Kondisi', 'Lokasi', 'Pemantauan'], $out);
 }
 
 $page_title = "Laporan Inventaris Aktif";
-$wajib_login = [];
+$wajib_login = ['admin', 'oki'];
 include __DIR__ . '/../includes/header.php';
 $qs = http_build_query(['jenis' => $jenis, 'kategori' => $kat]);
 ?>

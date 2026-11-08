@@ -5,7 +5,7 @@ include __DIR__ . '/../includes/header.php';
 $b = get_barang((int)($_GET['id'] ?? 0));
 $boleh = $b && ($user['role'] === 'admin' || $b['org'] === $user['org']
     || ($b['status'] === 'aktif' && $b['org_verif'] === 'terverifikasi'));
-if (!$boleh) { set_flash('error', 'Barang tidak ditemukan.'); redirect('barang/list.php'); }
+if (!$boleh) { set_flash('error', 'Barang tidak ditemukan.'); redirect('katalog/list.php'); }
 
 $bulan = get_str('bulan');
 if (!bulan_valid($bulan)) $bulan = date('Y-m');
@@ -79,8 +79,8 @@ $bisaPinjam = $user['role'] === 'oki' && $b['org'] !== $user['org'] && $b['statu
  </table>
  </div>
  <p>
- <?php if ($bisaPinjam): ?><a class="btn" href="../peminjaman/ajukan.php?id=<?php echo (int)$b['id']; ?>">Ajukan Pinjam</a> <?php endif; ?>
- <a href="<?php echo $user['role'] === 'oki' && $b['org'] === $user['org'] ? 'saya.php' : 'list.php'; ?>">&larr; Kembali</a>
+ <?php if ($bisaPinjam): ?><a class="btn" href="../oki/peminjaman/ajukan.php?id=<?php echo (int)$b['id']; ?>">Ajukan Pinjam</a> <?php endif; ?>
+ <a href="<?php echo $user['role'] === 'oki' && $b['org'] === $user['org'] ? '../oki/barang/saya.php' : 'list.php'; ?>">&larr; Kembali</a>
  </p>
  </section>
 <?php include __DIR__ . '/../includes/footer.php'; ?>

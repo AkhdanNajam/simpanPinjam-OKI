@@ -7,18 +7,6 @@ $flash = get_flash();
 $semua = daftar_peminjaman('semua');
 $KOND = $KONDISI;
 
-function aksi_form(string $aksi, int $id, string $label, string $extra = '', string $kelas = ''): void {
-    echo '<form method="post" action="proses_aksi.php" class="inline">' . csrf_field()
-        . '<input type="hidden" name="aksi" value="' . e($aksi) . '"><input type="hidden" name="id" value="' . $id . '">'
-        . $extra . '<button type="submit" class="' . e($kelas) . '">' . e($label) . '</button></form> ';
-}
-
-function pilih_kondisi(array $opsi): string {
-    $h = '<select name="kondisi">';
-    foreach ($opsi as $k) $h .= '<option value="' . e($k) . '">' . e($k) . '</option>';
-    return $h . '</select>';
-}
-
 function tabel_pinjam(array $rows, string $mode, array $KOND): void { ?>
  <div class="table-responsive">
  <table>
@@ -50,19 +38,7 @@ function tabel_pinjam(array $rows, string $mode, array $KOND): void { ?>
  </td>
  <td>
 
- <a href="detail.php?id=<?php echo $id; ?>">Detail</a>
- <?php if ($mode === 'masuk'): ?>
- <?php if ($p['status'] === 'menunggu'):
- aksi_form('setuju', $id, 'Setujui');
- aksi_form('tolak', $id, 'Tolak', '<input type="text" name="alasan" placeholder="Alasan" required>', 'btn-hapus');
- elseif ($p['status'] === 'disetujui'):
- aksi_form('serah', $id, 'Serah terima', pilih_kondisi($KOND));
- elseif ($p['status'] === 'dipinjam'):
- aksi_form('kembali', $id, 'Terima kembali', pilih_kondisi($KOND) . '<input type="text" name="catatan" placeholder="Catatan kerusakan">');
- endif; ?>
- <?php elseif ($mode === 'keluar' && $p['status'] === 'menunggu'):
- aksi_form('batal', $id, 'Batalkan', '', 'btn-hapus');
- endif; ?>
+ <a href="../../peminjaman/detail.php?id=<?php echo $id; ?>">Detail</a>
  </td>
  </tr>
  <?php endforeach; endif; ?>

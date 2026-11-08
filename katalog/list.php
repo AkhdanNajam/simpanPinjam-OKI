@@ -23,7 +23,7 @@ $rentang = $dari === $sampai ? tgl_id($dari) : tgl_id($dari) . ' – ' . tgl_id(
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
     <h2>Katalog Barang</h2>
     <?php if (!empty($user['org']) || !empty($oki)): ?>
-        <a href="tambah.php" class="btn" style="background-color: #0d6efd; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px;">+ Tambah Barang</a>
+        <a href="<?php echo $base; ?>oki/barang/tambah.php" class="btn" style="background-color: #0d6efd; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px;">+ Tambah Barang</a>
     <?php endif; ?>
 </div>
 
@@ -77,11 +77,11 @@ $rentang = $dari === $sampai ? tgl_id($dari) : tgl_id($dari) . ' – ' . tgl_id(
  <td>
  <a href="kalender.php?id=<?php echo (int)$b['id']; ?>">Kalender</a>
  <?php if ($oki && $user['org'] !== $b['org'] && $b['status'] === 'aktif' && $b['tersedia'] > 0): ?>
- <a class="btn" href="../peminjaman/ajukan.php?id=<?php echo (int)$b['id']; ?>&amp;dari=<?php echo e($dari); ?>&amp;sampai=<?php echo e($sampai); ?>">Ajukan Pinjam</a>
+ <a class="btn" href="../oki/peminjaman/ajukan.php?id=<?php echo (int)$b['id']; ?>&amp;dari=<?php echo e($dari); ?>&amp;sampai=<?php echo e($sampai); ?>">Ajukan Pinjam</a>
  <?php elseif (!$user && $b['status'] === 'aktif' && $b['tersedia'] > 0): ?>
  <a class="btn" href="../login.php">Login untuk Meminjam</a>
  <?php elseif ($admin): ?>
- <form method="post" action="proses_aksi.php" class="inline" data-konfirmasi="<?php echo $b['status'] === 'aktif' ? 'Nonaktifkan' : 'Aktifkan'; ?> barang ini?"><?php echo csrf_field(); ?>
+ <form method="post" action="<?php echo $base; ?>admin/barang/proses_aksi.php" class="inline" data-konfirmasi="<?php echo $b['status'] === 'aktif' ? 'Nonaktifkan' : 'Aktifkan'; ?> barang ini?"><?php echo csrf_field(); ?>
  <input type="hidden" name="aksi" value="toggle"><input type="hidden" name="id" value="<?php echo (int)$b['id']; ?>">
  <button type="submit" class="<?php echo $b['status'] === 'aktif' ? 'btn-hapus' : ''; ?>"><?php echo $b['status'] === 'aktif' ? 'Nonaktifkan' : 'Aktifkan'; ?></button>
  </form>

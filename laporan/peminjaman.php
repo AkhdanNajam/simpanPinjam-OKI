@@ -2,7 +2,7 @@
 session_start();
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/data.php';
-$user = require_login();
+$user = require_login(['admin', 'oki']);
 $admin = $user['role'] === 'admin';
 $org_id = $user['org'] ?? ($user['id_organisasi'] ?? ($_SESSION['org'] ?? 0));
 $orgFilter = $admin ? 0 : ($user['org'] ?? ($user['id_organisasi'] ?? ($_SESSION['org'] ?? 0)));
@@ -36,7 +36,7 @@ if (get_str('format') === 'csv') {
 }
 
 $page_title = "Laporan Riwayat Peminjaman";
-$wajib_login = [];
+$wajib_login = ['admin', 'oki'];
 include __DIR__ . '/../includes/header.php';
 $qs = http_build_query(['bulan' => $bulan, 'jenis' => $jenis, 'kategori' => $kat]);
 ?>

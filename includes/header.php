@@ -51,16 +51,16 @@ $notifLabel = 'Notifikasi' . ($jumlahNotif ? ' <span class="pill">' . (int)$juml
 <!-- Menu Khusus Admin -->
 <?php if ($user && $user['role'] === 'admin'): ?>
     <?php echo nav_link($base, 'admin/organisasi/list.php', 'Daftar OKI'); ?>
-    <?php echo nav_link($base, 'barang/list.php', 'Daftar Barang'); ?>
-    <?php echo nav_link($base, 'peminjaman/list.php', 'Daftar Peminjaman'); ?>
-    <?php echo nav_link($base, 'kategori/list.php', 'Kategori'); ?>
+    <?php echo nav_link($base, 'admin/barang/list.php', 'Daftar Barang'); ?>
+    <?php echo nav_link($base, 'admin/peminjaman/list.php', 'Daftar Peminjaman'); ?>
+    <?php echo nav_link($base, 'admin/kategori/list.php', 'Kategori'); ?>
     <?php endif; ?>
 
 <!-- Menu Khusus OKI -->
 <?php if ($user && $user['role'] === 'oki'): ?>
     <?php echo nav_link($base, 'oki/peminjaman/list.php', 'Daftar Peminjaman'); ?>
-    <?php echo nav_link($base, 'barang/saya.php', 'Barang Saya'); ?>
-    <?php echo nav_link($base, 'barang/tambah.php', 'Tambah Barang'); ?>
+    <?php echo nav_link($base, 'oki/barang/saya.php', 'Barang Saya'); ?>
+    <?php echo nav_link($base, 'oki/barang/tambah.php', 'Tambah Barang'); ?>
     <?php endif; ?>
 
 <!-- Menu Umum -->

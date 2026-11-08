@@ -24,8 +24,8 @@ Tombol "Reset data demo" (khusus admin, di footer) memuat ulang `database/seed.s
 
 ## Fitur
 **OKI sebagai peminjam**
-- Pencarian katalog: nama/deskripsi, kategori, jenis OKI pemilik, rentang tanggal, dan opsi "hanya yang tersedia" (`barang/list.php`).
-- Kalender ketersediaan per barang, stok tersisa per hari dan jadwal terpakai (`barang/kalender.php`).
+- Pencarian katalog: nama/deskripsi, kategori, jenis OKI pemilik, rentang tanggal, dan opsi "hanya yang tersedia" (`katalog/list.php`).
+- Kalender ketersediaan per barang, stok tersisa per hari dan jadwal terpakai (`katalog/kalender.php`).
 - Pengajuan peminjaman: validasi tanggal, durasi maksimal, stok dan bentrok jadwal, tidak boleh meminjam barang sendiri; pembatalan selama masih menunggu.
 - Pemantauan status dengan timeline, riwayat status, dan notifikasi.
 

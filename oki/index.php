@@ -28,7 +28,7 @@ $terbaru = peminjaman_terbaru((int)$user['org'], 5);
   <a class="btn" href="barang/saya.php">Kelola Barang</a>
   <a class="btn" href="barang/tambah.php">Tambah Barang</a>
   <a class="btn" href="peminjaman/list.php">Peminjaman Saya</a>
-  <a class="btn" href="laporan/peminjaman.php">Laporan</a>
+  <a class="btn" href="<?php echo $base; ?>laporan/peminjaman.php">Laporan</a>
   <?php else: ?>
   <a class="btn" href="<?php echo $base; ?>profil.php">Lengkapi Profil</a>
   <?php endif; ?>
@@ -42,7 +42,7 @@ $terbaru = peminjaman_terbaru((int)$user['org'], 5);
     <tr><td colspan="5">Belum ada peminjaman.</td></tr>
    <?php else: foreach ($terbaru as $p): ?>
     <tr>
-     <td><a href="peminjaman/detail.php?id=<?php echo (int)$p['id']; ?>"><?php echo (int)$p['id']; ?></a></td>
+     <td><a href="<?php echo $base; ?>peminjaman/detail.php?id=<?php echo (int)$p['id']; ?>"><?php echo (int)$p['id']; ?></a></td>
      <td><?php echo e($p['item_teks']); ?></td>
      <td><?php echo e($p['peminjam_nama']); ?> &rarr; <?php echo e($p['pemilik_nama']); ?></td>
      <td><?php echo tgl_id($p['tgl_pinjam']); ?> – <?php echo tgl_id($p['tgl_rencana']); ?></td>
