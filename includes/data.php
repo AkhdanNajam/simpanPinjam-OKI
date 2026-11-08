@@ -265,14 +265,55 @@ function terpakai_maks(int $barang): int {
     return max($maks, $telat);
 }
 // Mengembalikan null bila sukses, atau pesan galat.
-function ubah_barang(int $id, int $kategori, string $nama, string $deskripsi, int $jumlah, int $maks, string $kondisi, string $lokasi): ?string {
-    return transaksi(function () use ($id, $kategori, $nama, $deskripsi, $jumlah, $maks, $kondisi, $lokasi) {
-        q("SELECT id_barang FROM barang WHERE id_barang = :id FOR UPDATE", ['id' => $id]);
+
+function ubah_barang(
+    int $id,
+    int $kategori,
+    string $nama,
+    string $deskripsi,
+    int $jumlah,
+    int $maks,
+    string $kondisi,
+    string $lokasi,
+    ?string $foto = null
+): ?string {
+    return transaksi(function () use (
+        $id, $kategori, $nama, $deskripsi,
+        $jumlah, $maks, $kondisi, $lokasi, $foto
+    ) {
+        q("SELECT id_barang FROM barang WHERE id_barang = :id FOR UPDATE", [
+            'id' => $id
+        ]);
+
         $pakai = terpakai_maks($id);
-        if ($jumlah < $pakai) return "Jumlah total tidak boleh kurang dari $pakai (unit yang sedang dipinjam atau sudah dijadwalkan).";
-        q("UPDATE barang SET id_kategori = :k, nama_barang = :n, deskripsi = :d, jumlah = :j, maks_hari = :m, kondisi = :kd, lokasi = :l
-           WHERE id_barang = :id",
-            ['k' => $kategori, 'n' => $nama, 'd' => $deskripsi, 'j' => $jumlah, 'm' => $maks, 'kd' => $kondisi, 'l' => $lokasi, 'id' => $id]);
+
+        if ($jumlah < $pakai) {
+            return "Jumlah total tidak boleh kurang dari $pakai (unit yang sedang dipinjam atau sudah dijadwalkan).";
+        }
+
+        q("UPDATE barang SET
+            id_kategori = :k,
+            nama_barang = :n,
+            deskripsi = :d,
+            jumlah = :j,
+            maks_hari = :m,
+            kondisi = :kd,
+            lokasi = :l,
+            foto = COALESCE(:f, foto)
+            WHERE id_barang = :id",
+            [
+                'k' => $kategori,
+                'n' => $nama,
+                'd' => $deskripsi,
+                'j' => $jumlah,
+                'm' => $maks,
+                'kd' => $kondisi,
+                'l' => $lokasi,
+                'f' => $foto,
+                'id' => $id
+            ]
+        );
+
         return null;
     });
 }
