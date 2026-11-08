@@ -47,28 +47,26 @@ $notifLabel = 'Notifikasi' . ($jumlahNotif ? ' <span class="pill">' . (int)$juml
    <ul>
     <!-- Menu utama yang selalu tampil -->
     <?php echo nav_link($base, 'index.php', 'Beranda'); ?>
-    <?php echo nav_link($base, 'oki/list.php', 'Daftar OKI'); ?>
+
+<!-- Menu Khusus Admin -->
+<?php if ($user && $user['role'] === 'admin'): ?>
+    <?php echo nav_link($base, 'admin/organisasi/list.php', 'Daftar OKI'); ?>
     <?php echo nav_link($base, 'barang/list.php', 'Daftar Barang'); ?>
-
-    <?php if ($user): ?>
-     <!-- Menu khusus role 'oki' -->
-     <?php if ($user['role'] === 'oki'): ?>
-      <?php echo nav_link($base, 'barang/saya.php', 'Barang Saya'); ?>
-      <?php echo nav_link($base, 'barang/tambah.php', 'Tambah Barang'); ?>
-     <?php endif; ?>
-
-     <?php echo nav_link($base, 'peminjaman/list.php', 'Daftar Peminjaman'); ?>
-
-     <?php if ($user['role'] === 'admin'): ?>
-      <?php echo nav_link($base, 'kategori/list.php', 'Kategori'); ?>
-     <?php endif; ?>
-
-     <?php echo nav_link($base, 'laporan/peminjaman.php', 'Laporan'); ?>
-     <?php echo nav_link($base, 'notifikasi.php', $notifLabel); ?>
-     <?php echo nav_link($base, 'profil.php', 'Profil'); ?>
-    <?php else: ?>
-     <?php echo nav_link($base, 'login.php', 'Login'); ?>
+    <?php echo nav_link($base, 'peminjaman/list.php', 'Daftar Peminjaman'); ?>
+    <?php echo nav_link($base, 'kategori/list.php', 'Kategori'); ?>
     <?php endif; ?>
+
+<!-- Menu Khusus OKI -->
+<?php if ($user && $user['role'] === 'oki'): ?>
+    <?php echo nav_link($base, 'oki/peminjaman/list.php', 'Daftar Peminjaman'); ?>
+    <?php echo nav_link($base, 'barang/saya.php', 'Barang Saya'); ?>
+    <?php echo nav_link($base, 'barang/tambah.php', 'Tambah Barang'); ?>
+    <?php endif; ?>
+
+<!-- Menu Umum -->
+<?php echo nav_link($base, 'laporan/peminjaman.php', 'Laporan'); ?>
+<?php echo nav_link($base, 'notifikasi.php', $notifLabel); ?>
+<?php echo nav_link($base, 'profil.php', 'Profil'); ?>
    </ul>
 
    <!-- Bagian Bawah: Tombol Log out, Garis Pemisah, dan Info Akun -->
@@ -96,7 +94,6 @@ $notifLabel = 'Notifikasi' . ($jumlahNotif ? ' <span class="pill">' . (int)$juml
         <?php endif; ?>
        </div>
    </div>
-  </nav>
 </nav>
  </header>
  <main>

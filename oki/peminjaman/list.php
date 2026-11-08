@@ -1,6 +1,6 @@
 <?php
 $page_title = "Peminjaman";
-$wajib_login = ['oki'];
+$wajib_login = ['admin', 'oki'];
 include __DIR__ . '/../../includes/header.php';
 $flash = get_flash();
 

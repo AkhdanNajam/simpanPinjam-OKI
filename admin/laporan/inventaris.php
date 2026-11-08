@@ -23,7 +23,18 @@ ksort($perKategori);
 
 if (get_str('format') === 'csv') {
     $out = [];
-    foreach ($rows as $r) $out[] = [$r['org_nama'], $r['jenis'], $r['nama'], $r['kategori'], $r['total'], $r['keluar'], $r['tersedia'], $r['kondisi'], $r['lokasi'], $r['pantau']];
+    foreach ($rows as $r) $out[] = [
+        $r['org_nama'] ?? '-', 
+        $r['jenis'] ?? '-', 
+        $r['nama'] ?? '-', 
+        $r['kategori'] ?? '-', 
+        $r['total'] ?? 0, 
+        $r['keluar'] ?? 0, 
+        $r['tersedia'] ?? 0, 
+        $r['kondisi'] ?? '-', 
+        $r['lokasi'] ?? '-', 
+        $r['pantau'] ?? '-'
+    ];
     kirim_csv('laporan-inventaris-' . date('Y-m-d') . '.csv',
         ['OKI', 'Jenis OKI', 'Barang', 'Kategori', 'Jumlah Total', 'Sedang Dipinjam', 'Tersedia Hari Ini', 'Kondisi', 'Lokasi', 'Pemantauan'], $out);
 }
