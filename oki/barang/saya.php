@@ -81,8 +81,6 @@ $milik = barang_milik($user['org']);
                             <td>
                                 <a href="edit.php?id=<?php echo (int)$b['id']; ?>">Ubah</a>
 
-                                <a href="<?php echo $base; ?>katalog/kalender.php?id=<?php echo (int)$b['id']; ?>">Kalender</a>
-
                                 <form method="post" action="proses_aksi.php" class="inline">
                                     <?php echo csrf_field(); ?>
                                     <input type="hidden" name="aksi" value="toggle">
