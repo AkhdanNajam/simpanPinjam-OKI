@@ -19,7 +19,7 @@ if (!$b || $b['status'] !== 'aktif' || $b['org'] === $user['org'] || $b['org_ver
  <?php endif; ?>
  <p><strong><?php echo e($b['nama']); ?></strong> milik <?php echo e($b['org_nama']); ?>.
  Stok total <?php echo (int)$b['total']; ?>, maksimal <?php echo (int)$b['maks']; ?> hari, kondisi <?php echo e($b['kondisi']); ?>.
- <a href="<?php echo $base; ?>katalog/kalender.php?id=<?php echo (int)$b['id']; ?>">Lihat kalender ketersediaan</a></p>
+ <a href="<?php echo $base; ?>barang/kalender.php?id=<?php echo (int)$b['id']; ?>">Lihat kalender ketersediaan</a></p>
  <?php if ($b['deskripsi'] !== ''): ?><p class="catatan"><?php echo e($b['deskripsi']); ?></p><?php endif; ?>
  <form method="post" action="proses_ajukan.php"><?php echo csrf_field(); ?>
  <input type="hidden" name="barang" value="<?php echo (int)$b['id']; ?>">

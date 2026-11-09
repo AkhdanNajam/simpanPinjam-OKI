@@ -19,7 +19,7 @@ $balik = 'oki/peminjaman/ajukan.php?id=' . $idBarang;
 $b = get_barang($idBarang);
 if (!$b || $b['status'] !== 'aktif' || $b['org'] === $user['org'] || $b['org_verif'] !== 'terverifikasi') {
     set_flash('error', 'Barang tidak tersedia untuk dipinjam.');
-    redirect('katalog/list.php');
+    redirect('barang/list.php');
 }
 
 $errors = [];
