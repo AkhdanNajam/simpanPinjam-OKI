@@ -143,23 +143,74 @@ function katalog_barang(string $hari): array {
     return array_map(fn($r) => ints($r, 'id', 'org', 'total', 'maks', 'tersedia'), $rows);
 }
 
+
 function barang_milik(int $org): array {
-    $rows = q_all("SELECT b.id_barang AS id, k.nama_kategori AS kategori, b.nama_barang AS nama,
-            b.jumlah AS total, b.maks_hari AS maks, b.kondisi, b.status, b.foto,
-            EXISTS (SELECT 1 FROM detail_peminjaman dp WHERE dp.id_barang = b.id_barang) AS pernah_dipinjam,
-            COALESCE((SELECT SUM(dp.jumlah) FROM detail_peminjaman dp
-                      JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman
-                      WHERE dp.id_barang = b.id_barang AND p.status = 'dipinjam'), 0) AS keluar,
-            COALESCE((SELECT SUM(dp.jumlah) FROM detail_peminjaman dp
-                      JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman
-                      WHERE dp.id_barang = b.id_barang AND p.status = 'dipinjam'
-                        AND p.tgl_kembali_rencana < CAST(:h AS date)), 0) AS terlambat
+    $rows = q_all("
+        SELECT
+            b.id_barang AS id,
+            k.nama_kategori AS kategori,
+            b.nama_barang AS nama,
+            b.jumlah AS total,
+            b.maks_hari AS maks,
+            b.kondisi,
+            b.status,
+            b.foto,
+
+            EXISTS (
+                SELECT 1
+                FROM foto_barang f
+                WHERE f.id_barang = b.id_barang
+                  AND f.data_foto IS NOT NULL
+            ) AS foto_db,
+
+            EXISTS (
+                SELECT 1
+                FROM detail_peminjaman dp
+                WHERE dp.id_barang = b.id_barang
+            ) AS pernah_dipinjam,
+
+            COALESCE((
+                SELECT SUM(dp.jumlah)
+                FROM detail_peminjaman dp
+                JOIN peminjaman p
+                    ON p.id_peminjaman = dp.id_peminjaman
+                WHERE dp.id_barang = b.id_barang
+                  AND p.status = 'dipinjam'
+            ), 0) AS keluar,
+
+            COALESCE((
+                SELECT SUM(dp.jumlah)
+                FROM detail_peminjaman dp
+                JOIN peminjaman p
+                    ON p.id_peminjaman = dp.id_peminjaman
+                WHERE dp.id_barang = b.id_barang
+                  AND p.status = 'dipinjam'
+                  AND p.tgl_kembali_rencana < CAST(:h AS date)
+            ), 0) AS terlambat
+
         FROM barang b
-        JOIN kategori k ON k.id_kategori = b.id_kategori
+        JOIN kategori k
+            ON k.id_kategori = b.id_kategori
         WHERE b.id_organisasi = :o
-        ORDER BY b.id_barang", ['o' => $org, 'h' => date('Y-m-d')]);
-    return array_map(fn($r) => ints($r, 'id', 'total', 'maks', 'keluar', 'terlambat'), $rows);
+        ORDER BY b.id_barang
+    ", [
+        'o' => $org,
+        'h' => date('Y-m-d')
+    ]);
+
+    return array_map(
+        fn($r) => ints(
+            $r,
+            'id',
+            'total',
+            'maks',
+            'keluar',
+            'terlambat'
+        ),
+        $rows
+    );
 }
+
 
 // Status pemantauan barang: tersedia / sedang dipinjam / terlambat.
 function status_pantau(array $b): string {

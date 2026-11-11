@@ -1,4 +1,3 @@
-
 <?php
 $page_title = "Barang Saya";
 $wajib_login = ['oki'];
@@ -49,12 +48,22 @@ $milik = barang_milik($user['org']);
                     <?php foreach ($milik as $b): ?>
                         <tr>
                             <td>
-                                <?php if (!empty($b['foto'])): ?>
+                                <?php if (!empty($b['foto_db'])): ?>
+
+                                    <img
+                                        src="foto.php?id=<?php echo (int)$b['id']; ?>"
+                                        alt="<?php echo e($b['nama']); ?>"
+                                        style="width:70px;height:60px;object-fit:cover;border-radius:6px;"
+                                    >
+
+                                <?php elseif (!empty($b['foto'])): ?>
+
                                     <img
                                         src="<?php echo $base; ?><?php echo e($b['foto']); ?>"
                                         alt="<?php echo e($b['nama']); ?>"
                                         style="width:70px;height:60px;object-fit:cover;border-radius:6px;"
                                     >
+
                                 <?php else: ?>
                                     -
                                 <?php endif; ?>
