@@ -229,3 +229,11 @@ table.kalender td.hari-ini { outline: 2px solid var(--biru); outline-offset: -2p
   .dash-admin .stat:nth-last-child(-n+3) { border-bottom: 1px solid var(--ungu-garis); }
   .dash-admin .stat:nth-last-child(-n+2) { border-bottom: 0; }
 }
+
+/* Styling untuk menu sidebar yang sedang aktif */
+nav ul li a.aktif {
+    background-color: rgba(255, 255, 255, 0.15); /* Memberikan warna latar belakang transparan */
+    color: #ffffff; /* Mengubah warna teks menjadi putih */
+    font-weight: 700; /* Membuat teks menjadi tebal */
+    border-left: 4px solid #ffffff; /* Menambahkan garis putih di sebelah kiri menu */
+}

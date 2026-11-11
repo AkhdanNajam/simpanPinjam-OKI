@@ -19,10 +19,27 @@ $__rel = ltrim(str_replace('\\', '/', substr($__scriptDir, strlen($__jobsheetRoo
 $base = $__rel === '' ? '' : str_repeat('../', substr_count($__rel, '/') + 1);
 
 if (!function_exists('nav_link')) {
-    function nav_link($base, $path, $label) {
+    function nav_link($base, $path, $label, $activePaths = []) {
         $cur = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+
+        // Memeriksa halaman yang sama persis
         $on = substr($cur, -strlen('/' . $path)) === '/' . $path;
-        return '<li><a href="' . $base . $path . '"' . ($on ? ' class="aktif" aria-current="page"' : '') . '>' . $label . '</a></li>';
+
+        // Memeriksa halaman lain dalam kelompok menu yang sama
+        if (!$on) {
+            foreach ($activePaths as $activePath) {
+                $needle = '/' . trim($activePath, '/') . '/';
+
+                if (strpos($cur, $needle) !== false) {
+                    $on = true;
+                    break;
+                }
+            }
+        }
+
+        return '<li><a href="' . $base . $path . '"' .
+            ($on ? ' class="aktif" aria-current="page"' : '') .
+            '>' . $label . '</a></li>';
     }
 }
 $notifLabel = 'Notifikasi' . ($jumlahNotif ? ' <span class="pill">' . (int)$jumlahNotif . '</span>' : '');
@@ -58,7 +75,12 @@ $notifLabel = 'Notifikasi' . ($jumlahNotif ? ' <span class="pill">' . (int)$juml
 
 <!-- Menu Khusus OKI -->
 <?php if ($user && $user['role'] === 'oki'): ?>
-    <?php echo nav_link($base, 'oki/peminjaman/list.php', 'Daftar Peminjaman'); ?>
+    <?php echo nav_link(
+    $base,
+    'oki/peminjaman/list.php',
+    'Daftar Peminjaman',
+    ['peminjaman/']
+); ?>
     <?php echo nav_link($base, 'oki/barang/saya.php', 'Barang Saya'); ?>
     <?php echo nav_link($base, 'oki/barang/tambah.php', 'Tambah Barang'); ?>
     <?php endif; ?>
