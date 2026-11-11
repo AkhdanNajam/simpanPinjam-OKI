@@ -79,7 +79,7 @@ $milik = barang_milik($user['org']);
                             </td>
 
                             <td>
-                                <a href="edit.php?id=<?php echo (int)$b['id']; ?>">Ubah</a>
+                                <a href="edit.php?id=<?php echo (int)$b['id']; ?>" class="btn">Ubah</a>
 
                                 <form method="post" action="proses_aksi.php" class="inline">
                                     <?php echo csrf_field(); ?>

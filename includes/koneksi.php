@@ -6,11 +6,11 @@ function db(): PDO {
     static $pdo = null;
     if ($pdo !== null) return $pdo;
 
-    $host = getenv('DB_HOST') ?: 'localhost';
-    $port = getenv('DB_PORT') ?: '5432';
-    $nama = getenv('DB_NAME') ?: 'sipinjam_oki'; 
-    $user = getenv('DB_USER') ?: 'postgres';
-    $pass = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '12345';
+$host = getenv('DB_HOST') ?: 'ep-wandering-river-bdu4nu5s.c-8.us-east-2.aws.neon.tech';
+$port = getenv('DB_PORT') ?: '5432';
+$nama = getenv('DB_NAME') ?: 'simpinjam_oki';
+$user = getenv('DB_USER') ?: 'neondb_owner';
+$pass = getenv('DB_PASS') ?: 'npg_S7FclQi5vbAx';
 
     try {
         $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$nama", $user, $pass, [
