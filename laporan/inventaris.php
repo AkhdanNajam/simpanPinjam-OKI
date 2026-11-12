@@ -10,7 +10,7 @@ $orgFilter = $admin ? 0 : $org_id;
 $jenis = get_str('jenis');
 if (!in_array($jenis, $JENIS_OKI, true)) $jenis = '';
 $kat = (int)get_str('kategori');
-$rows = inventaris($orgFilter, $kat, $jenis);
+$rows = inventaris($kat, $orgFilter, $jenis);
 
 $totalUnit = $keluar = $tersedia = $telat = 0; $perKategori = [];
 foreach ($rows as $r) {
@@ -97,7 +97,7 @@ $qs = http_build_query(['jenis' => $jenis, 'kategori' => $kat]);
  <td><?php echo (int)$r['tersedia']; ?></td>
  <td><?php echo e($r['kondisi']); ?></td>
  <td><?php echo e($r['lokasi'] ?: '-'); ?></td>
- <td><?php echo badge($r['pantau']); ?></td>
+ <td><?php echo badge($r['pantau'] ?? '-'); ?></td>
  </tr>
  <?php endforeach; endif; ?>
  </tbody>

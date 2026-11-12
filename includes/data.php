@@ -494,29 +494,78 @@ function laporan_peminjaman($bulan, $org_id, $status, $pemilik_id) {
     if (!empty($pemilik_id) && $pemilik_id > 0) { $sql .= " AND p.id_organisasi_pemilik = :pemilik_id"; $params['pemilik_id'] = $pemilik_id; }
     return q_all($sql . " ORDER BY p.tgl_pinjam DESC, p.id_peminjaman DESC", $params);
 }
-function inventaris($kategori_id = 0, $org_id = 0, $status = '') {
-    $sql = "SELECT b.*, b.id_barang AS id, b.nama_barang AS nama, b.jumlah AS total,
-                   k.nama_kategori AS kategori, o.nama_organisasi AS organisasi_nama,
-                   COALESCE((SELECT SUM(dp.jumlah) FROM detail_peminjaman dp JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman
-                             WHERE dp.id_barang = b.id_barang AND p.status = 'dipinjam'), 0) AS keluar,
-                   COALESCE((SELECT SUM(dp.jumlah) FROM detail_peminjaman dp JOIN peminjaman p ON p.id_peminjaman = dp.id_peminjaman
-                             WHERE dp.id_barang = b.id_barang AND p.status = 'dipinjam'
-                               AND p.tgl_kembali_rencana < CAST(:h AS date)), 0) AS terlambat
+
+function inventaris($kategori_id = 0, $org_id = 0, $jenis = '') {
+    $sql = "SELECT
+                b.*,
+                b.id_barang AS id,
+                b.nama_barang AS nama,
+                b.jumlah AS total,
+                k.nama_kategori AS kategori,
+                o.nama_organisasi AS org_nama,
+                o.jenis_oki AS jenis,
+
+                COALESCE((
+                    SELECT SUM(dp.jumlah)
+                    FROM detail_peminjaman dp
+                    JOIN peminjaman p
+                        ON p.id_peminjaman = dp.id_peminjaman
+                    WHERE dp.id_barang = b.id_barang
+                      AND p.status = 'dipinjam'
+                ), 0) AS keluar,
+
+                COALESCE((
+                    SELECT SUM(dp.jumlah)
+                    FROM detail_peminjaman dp
+                    JOIN peminjaman p
+                        ON p.id_peminjaman = dp.id_peminjaman
+                    WHERE dp.id_barang = b.id_barang
+                      AND p.status = 'dipinjam'
+                      AND p.tgl_kembali_rencana < CAST(:h AS date)
+                ), 0) AS terlambat
+
             FROM barang b
-            LEFT JOIN kategori k ON k.id_kategori = b.id_kategori
-            LEFT JOIN organisasi o ON o.id_organisasi = b.id_organisasi
+            LEFT JOIN kategori k
+                ON k.id_kategori = b.id_kategori
+            LEFT JOIN organisasi o
+                ON o.id_organisasi = b.id_organisasi
             WHERE 1=1";
+
     $params = ['h' => date('Y-m-d')];
-    if (!empty($kategori_id) && $kategori_id > 0) { $sql .= " AND b.id_kategori = :kategori_id"; $params['kategori_id'] = $kategori_id; }
-    if (!empty($org_id) && $org_id > 0)           { $sql .= " AND b.id_organisasi = :org_id"; $params['org_id'] = $org_id; }
-    if (!empty($status))                          { $sql .= " AND b.status = :status"; $params['status'] = $status; }
+
+    if ($kategori_id > 0) {
+        $sql .= " AND b.id_kategori = :kategori_id";
+        $params['kategori_id'] = $kategori_id;
+    }
+
+    if ($org_id > 0) {
+        $sql .= " AND b.id_organisasi = :org_id";
+        $params['org_id'] = $org_id;
+    }
+
+    if (!empty($jenis)) {
+        $sql .= " AND o.jenis_oki = :jenis";
+        $params['jenis'] = $jenis;
+    }
+
     $rows = q_all($sql . " ORDER BY b.nama_barang ASC", $params);
+
     foreach ($rows as &$r) {
         $r = ints($r, 'id', 'total', 'keluar', 'terlambat');
+
         $r['tersedia'] = max(0, $r['total'] - $r['keluar']);
+
+        // Status pemantauan otomatis
+        $r['pantau'] = $r['terlambat'] > 0
+            ? 'Terlambat'
+            : 'Aman';
     }
+
+    unset($r);
+
     return $rows;
 }
+
 
 /* ---------- logika peminjaman ---------- */
 // Stok tersedia untuk rentang tanggal; peminjaman berstatus disetujui/dipinjam yang beririsan dihitung terpakai.
