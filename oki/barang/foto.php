@@ -1,6 +1,4 @@
-
 <?php
-// Mulai buffering sejak awal untuk mencegah output tambahan
 ob_start();
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -32,7 +30,7 @@ $row = q_row("
     LIMIT 1
 ", [
     'id' => $idBarang,
-    'org' => (int)$user['org']
+    'org' => (int) $user['org']
 ]);
 
 if (!$row || empty($row['foto_base64'])) {
@@ -59,12 +57,10 @@ if ($foto === false || strlen($foto) === 0) {
     exit('Gagal membaca data foto.');
 }
 
-// Bersihkan seluruh output tambahan dari file PHP yang di-include
 while (ob_get_level() > 0) {
     ob_end_clean();
 }
 
-// Kirim data gambar
 header('Content-Type: ' . $mime);
 header('Content-Length: ' . strlen($foto));
 header('X-Content-Type-Options: nosniff');
