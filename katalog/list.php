@@ -75,7 +75,13 @@ $rentang = $dari === $sampai ? tgl_id($dari) : tgl_id($dari) . ' – ' . tgl_id(
  <td><?php echo e($b['kondisi']); ?></td>
  <?php if ($admin): ?><td><?php echo badge($b['status']); ?></td><?php endif; ?>
  <td>
- <a href="kalender.php?id=<?php echo (int)$b['id']; ?>">Kalender</a>
+    <a href="detail.php?id=<?php echo (int)$b['id']; ?>">
+        Lihat Detail
+    </a>
+
+    <a href="kalender.php?id=<?php echo (int)$b['id']; ?>">
+        Kalender
+    </a>
  <?php if ($oki && $user['org'] !== $b['org'] && $b['status'] === 'aktif' && $b['tersedia'] > 0): ?>
  <a class="btn" href="../oki/peminjaman/ajukan.php?id=<?php echo (int)$b['id']; ?>&amp;dari=<?php echo e($dari); ?>&amp;sampai=<?php echo e($sampai); ?>">Ajukan Pinjam</a>
  <?php elseif (!$user && $b['status'] === 'aktif' && $b['tersedia'] > 0): ?>

@@ -53,7 +53,9 @@ $notifLabel = 'Notifikasi' . ($jumlahNotif ? ' <span class="pill">' . (int)$juml
  <link rel="preconnect" href="https://fonts.googleapis.com">
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
- <link rel="stylesheet" href="<?php echo $base; ?>assets/css/style.css">
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="<?php echo $base; ?>assets/css/style.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/style.css'); ?>">
 </head>
 <!-- Class selalu "app": tamu dan user login memakai layout sidebar yang sama -->
 <body class="app">

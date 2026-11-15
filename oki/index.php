@@ -7,6 +7,7 @@ $org = get_org($user['org']);
 $terverif = (($org['verif'] ?? '') === 'terverifikasi');
 $d = dashboard_oki((int)$user['org']);
 $terbaru = peminjaman_terbaru((int)$user['org'], 5);
+$tersedia = barang_tersedia((int)$user['org'], 3);
 ?>
 <section>
  <?php if ($flash): ?>
@@ -21,6 +22,7 @@ $terbaru = peminjaman_terbaru((int)$user['org'], 5);
   <div class="stat"><strong><?php echo (int)($d['aktif'] ?? 0); ?></strong><span>Peminjaman aktif</span></div>
   <div class="stat"><strong><?php echo (int)($d['total'] ?? 0); ?></strong><span>Total peminjaman (riwayat)</span></div>
  </div>
+
  <h3>Akses Cepat</h3>
  <p class="akses-cepat">
   <a class="btn" href="<?php echo $base; ?>katalog/list.php">Cari Barang</a>
@@ -33,6 +35,40 @@ $terbaru = peminjaman_terbaru((int)$user['org'], 5);
   <a class="btn" href="<?php echo $base; ?>profil.php">Lengkapi Profil</a>
   <?php endif; ?>
  </p>
+
+ <div class="section-head">
+  <h3>Barang Tersedia</h3>
+  <a class="lihat-semua" href="<?php echo $base; ?>katalog/list.php">Lihat Semua &rarr;</a>
+ </div>
+ <div class="barang-grid">
+  <?php if (!$tersedia): ?>
+   <p>Belum ada barang yang tersedia.</p>
+  <?php else: foreach ($tersedia as $b): ?>
+   <div class="barang-card">
+    <div class="barang-atas">
+     <?php if (!empty($b['foto'])): ?>
+      <img class="barang-foto" src="<?php echo $base . e($b['foto']); ?>" alt="<?php echo e($b['nama']); ?>">
+     <?php else: ?>
+      <div class="barang-foto placeholder">
+       <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.2">
+        <rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/>
+        <path d="M3 17l5-5 4 4 3-3 6 6"/>
+       </svg>
+      </div>
+     <?php endif; ?>
+     <div class="barang-info">
+      <strong><?php echo e($b['nama']); ?></strong>
+      <span>Pemilik : <?php echo e($b['pemilik_nama']); ?></span>
+      <span>Tersedia : <?php echo (int)$b['tersedia']; ?></span>
+     </div>
+    </div>
+    <a class="btn-detail" href="<?php echo $base; ?>katalog/detail.php?id=<?php echo (int)$b['id']; ?>">
+     <span>Lihat Detail</span><span>&rsaquo;</span>
+    </a>
+   </div>
+  <?php endforeach; endif; ?>
+ </div>
+
  <h3>Peminjaman Terbaru <a class="lihat-semua" href="peminjaman/list.php">Lihat semua &rarr;</a></h3>
  <div class="table-responsive">
   <table>

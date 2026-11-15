@@ -121,6 +121,26 @@ function set_verifikasi(int $org, string $status): void {
 }
 // Skema users belum punya kolom aktif/nonaktif, jadi fungsi ini belum melakukan apa pun.
 function toggle_akun_org(int $org): void { }
+//barang tersedia
+// Barang aktif milik OKI lain (terverifikasi) yang stoknya masih ada hari ini.
+function barang_tersedia(int $org_id, int $limit = 3): array {
+    $hari = date('Y-m-d');
+    $rows = q_all("SELECT * FROM (
+            SELECT b.id_barang AS id, b.nama_barang AS nama, b.foto,
+                   o.nama_organisasi AS pemilik_nama,
+                   b.jumlah - " . HITUNG_STOK . " AND p.tgl_pinjam <= :h1 AND p.tgl_kembali_rencana >= :h2), 0) AS tersedia
+            FROM barang b
+            JOIN organisasi o ON o.id_organisasi = b.id_organisasi
+            WHERE b.status = 'aktif'
+              AND o.status_verifikasi = 'terverifikasi'
+              AND b.id_organisasi <> :org
+        ) x
+        WHERE x.tersedia > 0
+        ORDER BY x.id DESC
+        LIMIT " . max(1, $limit),
+        ['h1' => $hari, 'h2' => $hari, 'org' => $org_id]);
+    return array_map(fn($r) => ints($r, 'id', 'tersedia'), $rows);
+}
 
 /* ---------- barang ---------- */
 function daftar_kategori(): array {
