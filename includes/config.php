@@ -1,6 +1,6 @@
 <?php
 $KONDISI = ['baik', 'rusak ringan', 'rusak berat'];
-$JENIS_OKI = ['BEM', 'HMJ', 'UKM', 'Lainnya'];
+$JENIS_OKI = ['LT', 'HMJ', 'UKM', 'Lainnya'];
 
 // Cegah input pengguna terbaca sebagai HTML (XSS).
 function e($v): string { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }

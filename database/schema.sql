@@ -114,3 +114,4 @@ CREATE TABLE notifikasi (
 CREATE INDEX idx_notif_pengguna ON notifikasi (pengguna_id, sudah_baca);
 
 COMMIT;
+
