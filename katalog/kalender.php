@@ -22,7 +22,14 @@ $bisaPinjam = $user['role'] === 'oki' && $b['org'] !== $user['org'] && $b['statu
 ?>
  <section>
  <h2>Kalender Ketersediaan: <?php echo e($b['nama']); ?></h2>
- <p>Milik <strong><?php echo e($b['org_nama']); ?></strong> &middot; kategori <?php echo e($b['kategori']); ?> &middot; stok total <?php echo (int)$b['total']; ?> &middot; maks. <?php echo (int)$b['maks']; ?> hari &middot; kondisi <?php echo e($b['kondisi']); ?> <?php if ($b['status'] !== 'aktif') echo badge($b['status']); ?></p>
+<div style="display: grid; grid-template-columns: 160px auto; gap: 4px 8px; line-height: 1.6;">
+    <span><strong>MILIK</strong></span><span>: <?php echo strtoupper(e($b['org_nama'])); ?></span>
+    <span><strong>KATEGORI</strong></span><span>: <?php echo strtoupper(e($b['kategori'])); ?></span>
+    <span><strong>STOK TOTAL</strong></span><span>: <?php echo (int)$b['total']; ?></span>
+    <span><strong>MAKS PEMINJAMAN</strong></span><span>: <?php echo (int)$b['maks']; ?> Hari</span>
+    <span><strong>KONDISI</strong></span><span>: <?php echo strtoupper(e($b['kondisi'])); ?></span>
+</div>
+<?php if ($b['status'] !== 'aktif') echo '<div style="margin-top: 6px;">' . badge($b['status']) . '</div>'; ?>
  <?php if ($b['deskripsi'] !== ''): ?><p class="catatan"><?php echo e($b['deskripsi']); ?></p><?php endif; ?>
 
  <div class="kal-nav">
