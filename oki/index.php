@@ -69,7 +69,12 @@ $tersedia = barang_tersedia((int)$user['org'], 3);
   <?php endforeach; endif; ?>
  </div>
 
- <h3>Peminjaman Terbaru <a class="lihat-semua" href="peminjaman/list.php">Lihat semua &rarr;</a></h3>
+ <div class="section-head">
+    <h3>Peminjaman Terbaru</h3>
+    <a class="lihat-semua" href="peminjaman/list.php">
+        Lihat Semua &rarr;
+    </a>
+ </div>
  <div class="table-responsive">
   <table>
    <thead><tr><th>#</th><th>Barang</th><th>Peminjam &rarr; Pemilik</th><th>Tanggal</th><th>Status</th></tr></thead>

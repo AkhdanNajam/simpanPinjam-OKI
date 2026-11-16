@@ -13,7 +13,9 @@ $user = getenv('DB_USER') ?: 'neondb_owner';
 $pass = getenv('DB_PASS') ?: 'npg_S7FclQi5vbAx';
 
     try {
-        $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$nama", $user, $pass, [
+        $dsn = "pgsql:host=$host;port=$port;dbname=$nama options=endpoint=ep-wandering-river-bdu4nu5s;sslmode=require";
+
+        $pdo = new PDO($dsn, $user, $pass, [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,

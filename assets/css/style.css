@@ -240,7 +240,22 @@ nav ul li a.aktif {
 /* ===== Barang Tersedia ===== */
 .section-head { display:flex; justify-content:space-between; align-items:center; margin:28px 0 16px; }
 .section-head h3 { margin:0; font-size:1.1rem; font-weight:600; color:#2d2a6e; }
-.section-head .lihat-semua { font-size:.8rem; color:#2d2a6e; text-decoration:underline; margin:0; }
+.section-head .lihat-semua {
+    display: inline-block;
+    padding: 8px 14px;
+    font-size: .8rem;
+    font-weight: 500;
+    color: #fff;
+    background-color: #2d2a6e;
+    text-decoration: none;
+    border-radius: 6px;
+    margin: 0;
+    transition: background-color .2s;
+}
+
+.section-head .lihat-semua:hover {
+    background-color: #211e55;
+}
 
 .barang-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:24px; margin-bottom:28px; }
 .barang-card { background:#eee; border:1px solid #b8b8b8; border-radius:8px; padding:12px 14px 14px;
