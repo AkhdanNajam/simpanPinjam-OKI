@@ -109,7 +109,9 @@ $v = fn(string $k, $default) => $old[$k] ?? $default;
         </div>
 
         <button type="submit">Simpan Perubahan</button>
-        <a href="saya.php">Batal</a>
+        <button type="button" onclick="history.back()" style="background-color: #b91c1c; color: #ffffff; border: none; padding: 8px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#991b1b'" onmouseout="this.style.backgroundColor='#b91c1c'">
+        Batal
+        </button>
     </form>
 </section>
 
