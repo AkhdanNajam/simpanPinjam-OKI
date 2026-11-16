@@ -399,3 +399,138 @@ nav ul li a.aktif {
         margin: 0 auto 10px;
     }
 }
+td.kolom-aksi { vertical-align: middle; }
+
+.aksi-grup {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.aksi-grup form.inline { margin: 0; display: flex; }
+
+.aksi-grup .btn-icon {
+    width: 40px;
+    height: 36px;
+    padding: 0;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+a.btn-icon { text-decoration: none; }
+
+.aksi-grup .btn-kalender        { background: #0e7490; }
+.aksi-grup .btn-nonaktif-barang { background: #d97706; }
+
+/* tombol di filter-bar */
+.filter-bar .filter-aksi { display: flex; align-items: center; gap: 6px; }
+.filter-bar .btn-icon {
+    width: 44px; height: 44px; padding: 0; border: 0; border-radius: 8px;
+    color: #fff; cursor: pointer; font-size: 1.1rem;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.filter-bar .btn-cari  { background: #1e3a8a; }
+.filter-bar .btn-reset { background: #64748b; }
+
+/* pakai selector lebih spesifik supaya menang dari aturan button umum */
+.aksi-grup .btn-verif    { background: #15803d; }
+.aksi-grup .btn-tolak    { background: #d97706; }
+.aksi-grup .btn-nonaktif { background: #1e3a8a; }
+.aksi-grup .btn-hapus    { background: #b91c1c; }
+/* tombol icon */
+.btn-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0; border: 0; border-radius: 8px;
+    color: #fff; cursor: pointer; font-size: 1.1rem; text-decoration: none;
+}
+.btn-icon:hover { opacity: .85; }
+a.btn-icon { text-decoration: none; }
+
+/* tabel moderasi */
+.tabel-moderasi { table-layout: fixed; width: 100%; }
+.tabel-moderasi th,
+.tabel-moderasi td { vertical-align: middle; text-align: left; padding: 12px; }
+.tabel-moderasi th.tengah,
+.tabel-moderasi td.tengah { text-align: center; }
+.tabel-moderasi td small.catatan { display: block; margin-top: 2px; line-height: 1.4; }
+
+/* kolom aksi */
+.aksi-grup { display: flex; align-items: center; gap: 6px; }
+.aksi-grup form.inline { margin: 0; display: flex; }
+.aksi-grup .btn-icon { width: 40px; height: 36px; margin: 0; }
+.aksi-grup .btn-verif           { background: #15803d; }
+.aksi-grup .btn-kalender        { background: #0e7490; }
+.aksi-grup .btn-nonaktif-barang { background: #d97706; }
+
+/* filter bar */
+.filter-bar { align-items: flex-end; }
+.filter-bar .filter-aksi { display: flex; align-items: center; gap: 6px; }
+.filter-bar .btn-icon { width: 44px; height: 44px; }
+.filter-bar .btn-cari  { background: #1e3a8a; }
+.filter-bar .btn-reset { background: #64748b; }
+
+.btn-icon.btn-detail {
+    width: 40px;
+    height: 36px;
+    background: #475569;
+    color: #fff;
+}
+/* ===== Halaman Kategori Barang ===== */
+
+/* form tambah & ubah: input + tombol sejajar */
+form.inline.form-tambah,
+form.inline.form-ubah {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px;
+    margin: 0 !important;
+}
+form.inline.form-tambah { margin-bottom: 16px !important; }
+
+/* input: tinggi dikunci, tanpa margin */
+form.inline.form-tambah input[type="text"],
+form.inline.form-ubah input[type="text"] {
+    height: 40px;
+    margin: 0 !important;
+    box-sizing: border-box;
+}
+form.inline.form-tambah input[type="text"] { width: 260px; }
+form.inline.form-ubah input[type="text"]   { flex: 1; min-width: 0; max-width: 280px; }
+
+/* tombol: tinggi sama dengan input (40px), tanpa margin */
+form.inline.form-tambah button,
+form.inline.form-ubah button,
+.tabel-kategori form.inline button.btn-hapus {
+    height: 40px;
+    margin: 0 !important;
+    box-sizing: border-box;
+    border: 0;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    line-height: 1;
+}
+form.inline.form-tambah button { padding: 0 16px; background: #1e3a8a; font-weight: 600; }
+form.inline.form-ubah button   { width: 44px; padding: 0; background: #15803d; font-size: 1.2rem; }
+.tabel-kategori form.inline button.btn-hapus { width: 44px; padding: 0; background: #b91c1c; font-size: 1.1rem; }
+
+/* ikon di dalam tombol: hilangkan offset baris */
+form.inline button .bi { line-height: 1; display: inline-block; }
+
+/* tabel */
+.tabel-kategori { table-layout: fixed; width: 100%; }
+.tabel-kategori th,
+.tabel-kategori td { vertical-align: middle !important; text-align: left; padding: 10px 12px; }
+.tabel-kategori th.tengah,
+.tabel-kategori td.tengah { text-align: center; }
+.tabel-kategori form.inline { display: flex; margin: 0; }

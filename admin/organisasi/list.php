@@ -5,10 +5,11 @@ include __DIR__ . '/../../includes/header.php';
 $flash = get_flash();
 $admin = true;
 $daftar = daftar_org(false);   // semua OKI, termasuk yang belum terverifikasi
-function aksi_oki(string $aksi, int $id, string $label, string $extra = '', string $kelas = '', string $konfirmasi = ''): void {
+function aksi_oki(string $aksi, int $id, string $label, string $icon, string $kelas = '', string $konfirmasi = '', string $extra = ''): void {
     echo '<form method="post" action="proses_aksi.php" class="inline"' . ($konfirmasi !== '' ? ' data-konfirmasi="' . e($konfirmasi) . '"' : '') . '>' . csrf_field()
         . '<input type="hidden" name="aksi" value="' . e($aksi) . '"><input type="hidden" name="id" value="' . $id . '">'
-        . $extra . '<button type="submit" class="' . e($kelas) . '">' . e($label) . '</button></form> ';
+        . $extra
+        . '<button type="submit" class="btn-icon ' . e($kelas) . '" title="' . e($label) . '" aria-label="' . e($label) . '"><i class="bi ' . e($icon) . '"></i></button></form> ';
 }
 ?>
  <section>
@@ -35,12 +36,14 @@ function aksi_oki(string $aksi, int $id, string $label, string $extra = '', stri
  <td><?php echo e($a['email'] ?? '-'); ?></td>
  <td><?php echo badge($o['verif']); ?></td>
  <td><?php echo $a ? badge($a['aktif'] ? 'aktif' : 'nonaktif') : '-'; ?></td>
- <td>
- <?php if ($o['verif'] !== 'terverifikasi') aksi_oki('ok', (int)$o['id'], 'Verifikasi');
- if ($o['verif'] !== 'ditolak') aksi_oki('no', (int)$o['id'], 'Tolak', '', 'btn-hapus');
- if ($a) aksi_oki('akun', (int)$o['id'], $a['aktif'] ? 'Nonaktifkan akun' : 'Aktifkan akun');
- aksi_oki('hapus', (int)$o['id'], 'Hapus', '', 'btn-hapus', 'Hapus OKI ini beserta akun dan barangnya? Hanya bisa jika belum punya riwayat peminjaman.'); ?>
- </td>
+ <td class="kolom-aksi">
+<div class="aksi-grup">
+<?php if ($o['verif'] !== 'terverifikasi') aksi_oki('ok', (int)$o['id'], 'Verifikasi', 'bi-check-circle', 'btn-verif');
+if ($o['verif'] !== 'ditolak') aksi_oki('no', (int)$o['id'], 'Tolak', 'bi-x-circle', 'btn-tolak');
+if ($a) aksi_oki('akun', (int)$o['id'], $a['aktif'] ? 'Nonaktifkan akun' : 'Aktifkan akun', $a['aktif'] ? 'bi-person-slash' : 'bi-person-check', 'btn-nonaktif');
+aksi_oki('hapus', (int)$o['id'], 'Hapus', 'bi-trash', 'btn-hapus', 'Hapus OKI ini beserta akun dan barangnya? Hanya bisa jika belum punya riwayat peminjaman.'); ?>
+</div>
+</td>
  <?php endif; ?>
  </tr>
  <?php endforeach; ?>

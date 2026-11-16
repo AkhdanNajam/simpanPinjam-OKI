@@ -27,7 +27,7 @@ if (get_str('format') === 'csv') {
         $r['org_nama'] ?? '-', 
         $r['jenis'] ?? '-', 
         $r['nama'] ?? '-', 
-        $r['kategori'] ?? '-', 
+        $r['kategori'] ?? '-',
         $r['total'] ?? 0, 
         $r['keluar'] ?? 0, 
         $r['tersedia'] ?? 0, 

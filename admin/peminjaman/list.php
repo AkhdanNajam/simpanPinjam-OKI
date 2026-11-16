@@ -38,7 +38,7 @@ function tabel_pinjam(array $rows, string $mode, array $KOND): void { ?>
  </td>
  <td>
 
- <a href="../../peminjaman/detail.php?id=<?php echo $id; ?>">Detail</a>
+ <a href="../../peminjaman/detail.php?id=<?php echo $id; ?>" class="btn-icon btn-detail" title="Detail" aria-label="Detail"><i class="bi-info-circle"></i></a>
  </td>
  </tr>
  <?php endforeach; endif; ?>
