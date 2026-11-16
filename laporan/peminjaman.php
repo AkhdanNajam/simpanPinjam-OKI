@@ -98,7 +98,7 @@ $qs = http_build_query(['bulan' => $bulan, 'jenis' => $jenis, 'kategori' => $kat
  <td><?php echo (int)$r['id']; ?></td>
  <td><?php echo tgl_id($r['tgl_pinjam']); ?> – <?php echo tgl_id($r['tgl_rencana']); ?></td>
  <td><?php echo e($r['item_teks']); ?><br><small><?php echo e($r['kategori_teks']); ?></small></td>
- <td><?php echo e($r['peminjam_nama']); ?> <small>(<?php echo e($r['jenis_peminjam']); ?>)</small></td>
+ <td><?php echo e($r['peminjam_nama']); ?> <small></td>
  <td><?php echo e($r['pemilik_nama']); ?></td>
  <td><?php echo e($r['keperluan']); ?></td>
  <td><?php echo tgl_id($r['tgl_aktual']); ?></td>

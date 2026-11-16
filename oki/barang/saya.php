@@ -17,18 +17,23 @@ $milik = barang_milik($user['org']);
     <?php endif; ?>
 
     <p>
-        <a class="btn" href="tambah.php">+ Tambah Barang</a>
+        <a class="btn-icon btn-tambah-barang" href="tambah.php" title="Tambah Barang" aria-label="Tambah Barang"><i class="bi bi-plus-lg"></i> Tambah Barang</a>
     </p>
 
     <div class="table-responsive">
-        <table>
+        <table class="tabel-barang">
+            <colgroup>
+                <col style="width:8%"><col style="width:17%"><col style="width:12%">
+                <col style="width:7%"><col style="width:8%"><col style="width:9%">
+                <col style="width:9%"><col style="width:12%"><col style="width:18%">
+            </colgroup>
             <thead>
                 <tr>
                     <th>Foto</th>
                     <th>Nama Barang</th>
                     <th>Kategori</th>
-                    <th>Jumlah</th>
-                    <th>Maks. hari</th>
+                    <th class="tengah">Jumlah</th>
+                    <th class="tengah">Maks. hari</th>
                     <th>Kondisi</th>
                     <th>Status</th>
                     <th>Pemantauan</th>
@@ -46,6 +51,7 @@ $milik = barang_milik($user['org']);
 
                 <?php else: ?>
                     <?php foreach ($milik as $b): ?>
+                        <?php $aktif = $b['status'] === 'aktif'; $lbl = $aktif ? 'Nonaktifkan' : 'Aktifkan'; ?>
                         <tr>
                             <td>
                                 <?php if (!empty($b['foto_db'])): ?>
@@ -71,14 +77,14 @@ $milik = barang_milik($user['org']);
 
                             <td><?php echo e($b['nama']); ?></td>
                             <td><?php echo e($b['kategori']); ?></td>
-                            <td><?php echo (int)$b['total']; ?></td>
-                            <td><?php echo (int)$b['maks']; ?></td>
-                            <td><?php echo e($b['kondisi']); ?></td>
+                            <td class="tengah"><?php echo (int)$b['total']; ?></td>
+                            <td class="tengah"><?php echo (int)$b['maks']; ?></td>
+                            <td><?php echo e(ucfirst(str_replace('_', ' ', $b['kondisi']))); ?></td>
                             <td><?php echo badge($b['status']); ?></td>
 
                             <td>
                                 <?php
-                                echo $b['status'] === 'aktif'
+                                echo $aktif
                                     ? badge(status_pantau($b)) .
                                         ($b['keluar'] > 0
                                             ? ' <small>(' . (int)$b['keluar'] . ' unit keluar)</small>'
@@ -87,34 +93,30 @@ $milik = barang_milik($user['org']);
                                 ?>
                             </td>
 
-                            <td>
-                                <a href="edit.php?id=<?php echo (int)$b['id']; ?>" class="btn">Ubah</a>
+                            <td class="kolom-aksi">
+                                <div class="aksi-grup">
+                                    <a href="edit.php?id=<?php echo (int)$b['id']; ?>" class="btn-icon btn-ubah" title="Ubah" aria-label="Ubah"><i class="bi bi-pencil-square"></i></a>
 
-                                <form method="post" action="proses_aksi.php" class="inline">
-                                    <?php echo csrf_field(); ?>
-                                    <input type="hidden" name="aksi" value="toggle">
-                                    <input type="hidden" name="id" value="<?php echo (int)$b['id']; ?>">
-
-                                    <button type="submit">
-                                        <?php echo $b['status'] === 'aktif' ? 'Nonaktifkan' : 'Aktifkan'; ?>
-                                    </button>
-                                </form>
-
-                                <?php if (!$b['pernah_dipinjam']): ?>
-                                    <form method="post"
-                                          action="proses_aksi.php"
-                                          class="inline"
-                                          data-konfirmasi="Hapus barang ini?">
-
+                                    <form method="post" action="proses_aksi.php" class="inline" data-konfirmasi="<?php echo $lbl; ?> barang ini?">
                                         <?php echo csrf_field(); ?>
-                                        <input type="hidden" name="aksi" value="hapus">
+                                        <input type="hidden" name="aksi" value="toggle">
                                         <input type="hidden" name="id" value="<?php echo (int)$b['id']; ?>">
-
-                                        <button type="submit" class="btn-hapus">
-                                            Hapus
+                                        <button type="submit" class="btn-icon <?php echo $aktif ? 'btn-nonaktif-barang' : 'btn-verif'; ?>" title="<?php echo $lbl; ?>" aria-label="<?php echo $lbl; ?>">
+                                            <i class="bi <?php echo $aktif ? 'bi-slash-circle' : 'bi-check-circle'; ?>"></i>
                                         </button>
                                     </form>
-                                <?php endif; ?>
+
+                                    <?php if (!$b['pernah_dipinjam']): ?>
+                                        <form method="post" action="proses_aksi.php" class="inline" data-konfirmasi="Hapus barang ini?">
+                                            <?php echo csrf_field(); ?>
+                                            <input type="hidden" name="aksi" value="hapus">
+                                            <input type="hidden" name="id" value="<?php echo (int)$b['id']; ?>">
+                                            <button type="submit" class="btn-icon btn-hapus" title="Hapus" aria-label="Hapus">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

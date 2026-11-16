@@ -19,84 +19,109 @@ $f = ['q' => get_str('q'), 'kategori' => (int)get_str('kategori'), 'jenis' => $j
 $katalog = cari_barang($f, $admin);
 $rentang = $dari === $sampai ? tgl_id($dari) : tgl_id($dari) . ' – ' . tgl_id($sampai);
 ?>
- <section>
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-    <h2>Katalog Barang</h2>
-    <?php if (!empty($user['org']) || !empty($oki)): ?>
-        <a href="<?php echo $base; ?>oki/barang/tambah.php" class="btn" style="background-color: #0d6efd; color: white; padding: 6px 12px; text-decoration: none; border-radius: 4px;">+ Tambah Barang</a>
-    <?php endif; ?>
-</div>
+<section>
+ <div class="judul-bar">
+  <h2>Katalog Barang</h2>
+  <?php if (!empty($user['org']) || !empty($oki)): ?>
+   <a href="<?php echo $base; ?>oki/barang/tambah.php" class="btn-icon btn-tambah-barang" title="Tambah Barang" aria-label="Tambah Barang"><i class="bi bi-plus-lg"></i> Tambah Barang</a>
+  <?php endif; ?>
+ </div>
 
-<?php if ($flash): ?>
-<p class="flash flash-<?php echo e($flash['type']); ?>"><?php echo e($flash['pesan']); ?></p>
-<?php endif; ?>
+ <?php if ($flash): ?>
+ <p class="flash flash-<?php echo e($flash['type']); ?>"><?php echo e($flash['pesan']); ?></p>
+ <?php endif; ?>
 
-<form method="get" action="list.php" class="filter-bar">
- <div><label for="q">Nama / deskripsi</label>
- <input type="text" id="q" name="q" value="<?php echo e($f['q']); ?>" placeholder="mis. proyektor"></div>
- <div><label for="kategori">Kategori</label>
- <select id="kategori" name="kategori">
- <option value="0">Semua</option>
- <?php foreach (daftar_kategori() as $k): ?>
- <option value="<?php echo (int)$k['id']; ?>" <?php echo $f['kategori'] === (int)$k['id'] ? 'selected' : ''; ?>><?php echo e($k['nama']); ?></option>
- <?php endforeach; ?>
- </select></div>
- <div><label for="jenis">Jenis OKI pemilik</label>
- <select id="jenis" name="jenis">
- <option value="">Semua</option>
- <?php foreach ($JENIS_OKI as $j): ?>
- <option value="<?php echo e($j); ?>" <?php echo $jenis === $j ? 'selected' : ''; ?>><?php echo e($j); ?></option>
- <?php endforeach; ?>
- </select></div>
- <div><label for="dari">Cek ketersediaan dari</label>
- <input type="date" id="dari" name="dari" value="<?php echo e($dari); ?>"></div>
- <div><label for="sampai">sampai</label>
- <input type="date" id="sampai" name="sampai" value="<?php echo e($sampai); ?>"></div>
- <div class="filter-cek"><label><input type="checkbox" name="ada" value="1" <?php echo $f['ada'] ? 'checked' : ''; ?>> Hanya yang tersedia</label></div>
- <div class="filter-aksi"><button type="submit">Cari</button> <a href="list.php">Reset</a></div>
+ <form method="get" action="list.php" class="filter-bar">
+  <div><label for="q">Nama / deskripsi</label>
+  <input type="text" id="q" name="q" value="<?php echo e($f['q']); ?>" placeholder="mis. proyektor"></div>
+
+  <div><label for="kategori">Kategori</label>
+  <select id="kategori" name="kategori">
+   <option value="0">Semua</option>
+   <?php foreach (daftar_kategori() as $k): ?>
+   <option value="<?php echo (int)$k['id']; ?>" <?php echo $f['kategori'] === (int)$k['id'] ? 'selected' : ''; ?>><?php echo e($k['nama']); ?></option>
+   <?php endforeach; ?>
+  </select></div>
+
+  <div><label for="jenis">Jenis OKI pemilik</label>
+  <select id="jenis" name="jenis">
+   <option value="">Semua</option>
+   <?php foreach ($JENIS_OKI as $j): ?>
+   <option value="<?php echo e($j); ?>" <?php echo $jenis === $j ? 'selected' : ''; ?>><?php echo e($j); ?></option>
+   <?php endforeach; ?>
+  </select></div>
+
+  <div><label for="dari">Cek ketersediaan dari</label>
+  <input type="date" id="dari" name="dari" value="<?php echo e($dari); ?>"></div>
+
+  <div><label for="sampai">sampai</label>
+  <input type="date" id="sampai" name="sampai" value="<?php echo e($sampai); ?>"></div>
+
+    <div class="filter-aksi">
+    <button type="submit" class="btn-icon btn-cari" title="Cari" aria-label="Cari"><i class="bi bi-search"></i></button>
+    <a href="list.php" class="btn-icon btn-reset" title="Reset" aria-label="Reset"><i class="bi bi-arrow-counterclockwise"></i></a>
+  </div>
+
+  <div class="filter-cek"><label><input type="checkbox" name="ada" value="1" <?php echo $f['ada'] ? 'checked' : ''; ?>> Hanya yang tersedia</label></div>
  </form>
 
  <p class="catatan">Menampilkan <?php echo count($katalog); ?> barang. Ketersediaan dihitung untuk <?php echo e($rentang); ?>.<?php if (!$user): ?> <a href="../login.php">Login</a> untuk mengajukan peminjaman.<?php endif; ?></p>
- <div class="table-responsive">
- <table>
- <thead>
- <tr><th>Nama Barang</th><th>Kategori</th><th>Pemilik</th><th>Tersedia</th><th>Maks. hari</th><th>Kondisi</th><?php if ($admin): ?><th>Status</th><?php endif; ?><th>Aksi</th></tr>
- </thead>
- <tbody>
- <?php if (empty($katalog)): ?>
- <tr><td colspan="<?php echo $admin ? 8 : 7; ?>">Tidak ada barang yang cocok.</td></tr>
- <?php else: foreach ($katalog as $b): ?>
- <tr>
- <td><?php echo e($b['nama']); ?><?php if ($b['deskripsi'] !== ''): ?><br><small class="catatan"><?php echo e($b['deskripsi']); ?></small><?php endif; ?></td>
- <td><?php echo e($b['kategori']); ?></td>
- <td><?php echo e($b['org_nama']); ?> <small>(<?php echo e($b['jenis']); ?>)</small></td>
- <td><?php echo (int)$b['tersedia']; ?> / <?php echo (int)$b['total']; ?></td>
- <td><?php echo (int)$b['maks']; ?></td>
- <td><?php echo e($b['kondisi']); ?></td>
- <?php if ($admin): ?><td><?php echo badge($b['status']); ?></td><?php endif; ?>
- <td>
-    <a href="detail.php?id=<?php echo (int)$b['id']; ?>">
-        Lihat Detail
-    </a>
 
-    <a href="kalender.php?id=<?php echo (int)$b['id']; ?>">
-        Kalender
-    </a>
- <?php if ($oki && $user['org'] !== $b['org'] && $b['status'] === 'aktif' && $b['tersedia'] > 0): ?>
- <a class="btn" href="../oki/peminjaman/ajukan.php?id=<?php echo (int)$b['id']; ?>&amp;dari=<?php echo e($dari); ?>&amp;sampai=<?php echo e($sampai); ?>">Ajukan Pinjam</a>
- <?php elseif (!$user && $b['status'] === 'aktif' && $b['tersedia'] > 0): ?>
- <a class="btn" href="../login.php">Login untuk Meminjam</a>
- <?php elseif ($admin): ?>
- <form method="post" action="<?php echo $base; ?>admin/barang/proses_aksi.php" class="inline" data-konfirmasi="<?php echo $b['status'] === 'aktif' ? 'Nonaktifkan' : 'Aktifkan'; ?> barang ini?"><?php echo csrf_field(); ?>
- <input type="hidden" name="aksi" value="toggle"><input type="hidden" name="id" value="<?php echo (int)$b['id']; ?>">
- <button type="submit" class="<?php echo $b['status'] === 'aktif' ? 'btn-hapus' : ''; ?>"><?php echo $b['status'] === 'aktif' ? 'Nonaktifkan' : 'Aktifkan'; ?></button>
- </form>
- <?php endif; ?>
- </td>
- </tr>
- <?php endforeach; endif; ?>
- </tbody>
+ <div class="table-responsive">
+ <table class="tabel-katalog">
+  <colgroup>
+   <col style="width:<?php echo $admin ? 24 : 27; ?>%"><col style="width:14%"><col style="width:12%">
+   <col style="width:10%"><col style="width:9%"><col style="width:11%">
+   <?php if ($admin): ?><col style="width:9%"><?php endif; ?>
+   <col style="width:<?php echo $admin ? 11 : 17; ?>%">
+  </colgroup>
+  <thead>
+   <tr>
+    <th>Nama Barang</th><th>Kategori</th><th>Pemilik</th>
+    <th class="tengah">Tersedia</th><th class="tengah">Maks. hari</th><th>Kondisi</th>
+    <?php if ($admin): ?><th>Status</th><?php endif; ?>
+    <th>Aksi</th>
+   </tr>
+  </thead>
+  <tbody>
+  <?php if (empty($katalog)): ?>
+   <tr><td colspan="<?php echo $admin ? 8 : 7; ?>">Tidak ada barang yang cocok.</td></tr>
+  <?php else: foreach ($katalog as $b): ?>
+   <?php $aktif = $b['status'] === 'aktif'; $lbl = $aktif ? 'Nonaktifkan' : 'Aktifkan'; ?>
+   <tr>
+    <td>
+     <?php echo e($b['nama']); ?>
+     <?php if ($b['deskripsi'] !== ''): ?><small class="catatan"><?php echo e($b['deskripsi']); ?></small><?php endif; ?>
+    </td>
+    <td><?php echo e($b['kategori']); ?></td>
+    <td><?php echo e($b['org_nama']); ?></td>
+    <td class="tengah"><?php echo (int)$b['tersedia']; ?> / <?php echo (int)$b['total']; ?></td>
+    <td class="tengah"><?php echo (int)$b['maks']; ?></td>
+    <td><?php echo e(ucfirst(str_replace('_', ' ', $b['kondisi']))); ?></td>
+    <?php if ($admin): ?><td><?php echo badge($b['status']); ?></td><?php endif; ?>
+    <td class="kolom-aksi">
+     <div class="aksi-grup">
+      <a href="detail.php?id=<?php echo (int)$b['id']; ?>" class="btn-icon btn-detail" title="Lihat Detail" aria-label="Lihat Detail"><i class="bi-info-circle"></i></a>
+      <a href="kalender.php?id=<?php echo (int)$b['id']; ?>" class="btn-icon btn-kalender" title="Kalender" aria-label="Kalender"><i class="bi bi-calendar-event"></i></a>
+
+      <?php if ($oki && $user['org'] !== $b['org'] && $aktif && $b['tersedia'] > 0): ?>
+       <a class="btn-icon btn-ajukan" href="../oki/peminjaman/ajukan.php?id=<?php echo (int)$b['id']; ?>&amp;dari=<?php echo e($dari); ?>&amp;sampai=<?php echo e($sampai); ?>" title="Ajukan Pinjam" aria-label="Ajukan Pinjam"><i class="bi bi-box-arrow-in-right"></i></a>
+      <?php elseif (!$user && $aktif && $b['tersedia'] > 0): ?>
+       <a class="btn-icon btn-ajukan" href="../login.php" title="Login untuk Meminjam" aria-label="Login untuk Meminjam"><i class="bi bi-box-arrow-in-right"></i></a>
+      <?php elseif ($admin): ?>
+       <form method="post" action="<?php echo $base; ?>admin/barang/proses_aksi.php" class="inline" data-konfirmasi="<?php echo $lbl; ?> barang ini?"><?php echo csrf_field(); ?>
+        <input type="hidden" name="aksi" value="toggle"><input type="hidden" name="id" value="<?php echo (int)$b['id']; ?>">
+        <button type="submit" class="btn-icon <?php echo $aktif ? 'btn-nonaktif-barang' : 'btn-verif'; ?>" title="<?php echo $lbl; ?>" aria-label="<?php echo $lbl; ?>">
+         <i class="bi <?php echo $aktif ? 'bi-slash-circle' : 'bi-check-circle'; ?>"></i>
+        </button>
+       </form>
+      <?php endif; ?>
+     </div>
+    </td>
+   </tr>
+  <?php endforeach; endif; ?>
+  </tbody>
  </table>
  </div>
- </section>
+</section>
 <?php include __DIR__ . '/../includes/footer.php'; ?>
