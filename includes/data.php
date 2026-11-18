@@ -515,75 +515,53 @@ function laporan_peminjaman($bulan, $org_id, $status, $pemilik_id) {
     return q_all($sql . " ORDER BY p.tgl_pinjam DESC, p.id_peminjaman DESC", $params);
 }
 
-function inventaris($kategori_id = 0, $org_id = 0, $jenis = '') {
-    $sql = "SELECT
-                b.*,
-                b.id_barang AS id,
-                b.nama_barang AS nama,
-                b.jumlah AS total,
-                k.nama_kategori AS kategori,
-                o.nama_organisasi AS org_nama,
-                o.jenis_oki AS jenis,
+function inventaris($kategori_id = 0, $org_id = 0, $jenis_oki = '') {
+    global $pdo;
+    if (!$pdo) {
+        return [];
+    }
 
-                COALESCE((
-                    SELECT SUM(dp.jumlah)
-                    FROM detail_peminjaman dp
-                    JOIN peminjaman p
-                        ON p.id_peminjaman = dp.id_peminjaman
-                    WHERE dp.id_barang = b.id_barang
-                      AND p.status = 'dipinjam'
-                ), 0) AS keluar,
-
-                COALESCE((
-                    SELECT SUM(dp.jumlah)
-                    FROM detail_peminjaman dp
-                    JOIN peminjaman p
-                        ON p.id_peminjaman = dp.id_peminjaman
-                    WHERE dp.id_barang = b.id_barang
-                      AND p.status = 'dipinjam'
-                      AND p.tgl_kembali_rencana < CAST(:h AS date)
-                ), 0) AS terlambat
-
-            FROM barang b
-            LEFT JOIN kategori k
-                ON k.id_kategori = b.id_kategori
-            LEFT JOIN organisasi o
-                ON o.id_organisasi = b.id_organisasi
+    // Menggunakan alias (AS) agar nama kolom di database yang rumit 
+    // langsung menjadi bersih dan mudah dipahami di frontend
+    $sql = "SELECT i.id, 
+                   i.nama AS nama, 
+                   i.kategori AS kategori, 
+                   i.jumlah AS total, 
+                   i.dipinjam AS keluar, 
+                   i.tersedia AS tersedia, 
+                   i.terlambat AS terlambat, 
+                   i.kondisi AS kondisi, 
+                   i.lokasi AS lokasi,
+                   o.nama AS org_nama,
+                   o.jenis AS jenis
+            FROM inventaris i
+            LEFT JOIN organisasi o ON i.id_organisasi = o.id
             WHERE 1=1";
+    $params = [];
 
-    $params = ['h' => date('Y-m-d')];
-
-    if ($kategori_id > 0) {
-        $sql .= " AND b.id_kategori = :kategori_id";
-        $params['kategori_id'] = $kategori_id;
+    // Filter Kategori
+    if (!empty($kategori_id)) {
+        $sql .= " AND i.id_kategori = ?";
+        $params[] = $kategori_id;
     }
 
-    if ($org_id > 0) {
-        $sql .= " AND b.id_organisasi = :org_id";
-        $params['org_id'] = $org_id;
+    // Filter Organisasi (jika bukan admin)
+    if (!empty($org_id)) {
+        $sql .= " AND i.id_organisasi = ?";
+        $params[] = $org_id;
     }
 
-    if (!empty($jenis)) {
-        $sql .= " AND o.jenis_oki = :jenis";
-        $params['jenis'] = $jenis;
+    // Filter Jenis OKI Pemilik
+    if (!empty($jenis_oki)) {
+        $sql .= " AND o.jenis = ?";
+        $params[] = $jenis_oki;
     }
 
-    $rows = q_all($sql . " ORDER BY b.nama_barang ASC", $params);
+    $sql .= " ORDER BY i.id DESC";
 
-    foreach ($rows as &$r) {
-        $r = ints($r, 'id', 'total', 'keluar', 'terlambat');
-
-        $r['tersedia'] = max(0, $r['total'] - $r['keluar']);
-
-        // Status pemantauan otomatis
-        $r['pantau'] = $r['terlambat'] > 0
-            ? 'Terlambat'
-            : 'Aman';
-    }
-
-    unset($r);
-
-    return $rows;
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 

@@ -83,21 +83,31 @@ $qs = http_build_query(['jenis' => $jenis, 'kategori' => $kat]);
  <h3>Rincian</h3>
  <div class="table-responsive">
  <table>
- <thead><tr><th>Barang</th><th>Kategori</th><?php if ($admin): ?><th>Pemilik</th><?php endif; ?><th>Total</th><th>Dipinjam</th><th>Tersedia</th><th>Kondisi</th><th>Lokasi</th><th>Pemantauan</th></tr></thead>
+ <thead><tr>
+    <th>#</th>
+    <th>Tanggal</th>
+    <?php if ($admin): ?>
+        <th>Barang</th>
+        <?php endif; ?>
+        <th>Peminjam</th>
+        <th>Keperluan</th>
+        <th>Kembali</th>
+        <th>Status</th>
+    </tr>
+</thead>
  <tbody>
  <?php if (!$rows): ?>
  <tr><td colspan="<?php echo $admin ? 9 : 8; ?>">Tidak ada barang aktif.</td></tr>
  <?php else: foreach ($rows as $r): ?>
  <tr>
- <td><?php echo e($r['nama']); ?></td>
- <td><?php echo e($r['kategori']); ?></td>
+ <td><?php echo e($r['#']); ?></td>
+ <td><?php echo e($r['Tanggal']); ?></td>
  <?php if ($admin): ?><td><?php echo e($r['org_nama']); ?> <small>(<?php echo e($r['jenis']); ?>)</small></td><?php endif; ?>
- <td><?php echo (int)$r['total']; ?></td>
- <td><?php echo (int)$r['keluar']; ?></td>
- <td><?php echo (int)$r['tersedia']; ?></td>
- <td><?php echo e($r['kondisi']); ?></td>
- <td><?php echo e($r['lokasi'] ?: '-'); ?></td>
- <td><?php echo badge($r['pantau'] ?? '-'); ?></td>
+ <td><?php echo (int)$r['Barang']; ?></td>
+ <td><?php echo (int)$r['Peminjam']; ?></td>
+ <td><?php echo (int)$r['Keperluan']; ?></td>
+ <td><?php echo e($r['Kembali']); ?></td>
+ <td><?php echo e($r['Status'] ?: '-'); ?></td>
  </tr>
  <?php endforeach; endif; ?>
  </tbody>
