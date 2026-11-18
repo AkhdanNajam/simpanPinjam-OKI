@@ -51,20 +51,12 @@ function tabel_pinjam(array $rows, string $mode, array $KOND): void { ?>
    <?php if (!empty($alasan_teks)): ?><br><small><?php echo e($alasan_teks); ?></small><?php endif; ?>
  </td>
  <td>
-
-<a href="../../peminjaman/detail.php?id=<?php echo (int)$id; ?>" class="btn">
-    Detail
+ <!-- Tombol Detail (Satu-satunya tombol yang tampil di tabel list.php) -->
+<a href="/oki/peminjaman/detail.php?id=<?php echo (int)$id; ?>" class="btn">
+   Detail
 </a>
- <?php if ($mode === 'masuk'): ?>
- <?php if ($p['status'] === 'menunggu'):
- aksi_form('setuju', $id, 'Setujui');
- aksi_form('tolak', $id, 'Tolak', '<input type="text" name="alasan" placeholder="Alasan" required>', 'btn-hapus');
- elseif ($p['status'] === 'disetujui'):
- aksi_form('serah', $id, 'Serah terima', pilih_kondisi($KOND));
- elseif ($p['status'] === 'dipinjam'):
- aksi_form('kembali', $id, 'Terima kembali', pilih_kondisi($KOND) . '<input type="text" name="catatan" placeholder="Catatan kerusakan">');
- endif; ?>
- <?php elseif ($mode === 'keluar' && $p['status'] === 'menunggu'):
+ 
+ <?php if ($mode === 'keluar' && $p['status'] === 'menunggu'):
  aksi_form('batal', $id, 'Batalkan', '', 'btn-hapus');
  endif; ?>
  </td>

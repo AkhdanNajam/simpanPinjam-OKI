@@ -85,7 +85,6 @@ $notifLabel = 'Notifikasi' . ($jumlahNotif ? ' <span class="pill">' . (int)$juml
     ['peminjaman/']
 ); ?>
     <?php echo nav_link($base, 'oki/barang/saya.php', 'Barang Saya'); ?>
-    <?php echo nav_link($base, 'oki/barang/tambah.php', 'Tambah Barang'); ?>
     <?php endif; ?>
 
 <!-- Menu Umum -->
