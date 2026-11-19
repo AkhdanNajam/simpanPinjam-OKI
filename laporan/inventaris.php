@@ -33,7 +33,7 @@ if (get_str('format') === 'csv') {
         $r['tersedia'] ?? 0, 
         $r['kondisi'] ?? '-', 
         $r['lokasi'] ?? '-', 
-        $r['pantau'] ?? '-'
+        $r['terlambat'] ?? '-'
     ];
     kirim_csv('laporan-inventaris-' . date('Y-m-d') . '.csv',
         ['OKI', 'Jenis OKI', 'Barang', 'Kategori', 'Jumlah Total', 'Sedang Dipinjam', 'Tersedia Hari Ini', 'Kondisi', 'Lokasi', 'Pemantauan'], $out);
@@ -80,39 +80,68 @@ $qs = http_build_query(['jenis' => $jenis, 'kategori' => $kat]);
  <?php endforeach; ?>
  </tbody></table>
 
- <h3>Rincian</h3>
- <div class="table-responsive">
- <table>
- <thead><tr>
-    <th>#</th>
-    <th>Tanggal</th>
-    <?php if ($admin): ?>
-        <th>Barang</th>
-        <?php endif; ?>
-        <th>Peminjam</th>
-        <th>Keperluan</th>
-        <th>Kembali</th>
-        <th>Status</th>
-    </tr>
-</thead>
- <tbody>
- <?php if (!$rows): ?>
- <tr><td colspan="<?php echo $admin ? 9 : 8; ?>">Tidak ada barang aktif.</td></tr>
- <?php else: foreach ($rows as $r): ?>
- <tr>
- <td><?php echo e($r['#']); ?></td>
- <td><?php echo e($r['Tanggal']); ?></td>
- <?php if ($admin): ?><td><?php echo e($r['org_nama']); ?> <small>(<?php echo e($r['jenis']); ?>)</small></td><?php endif; ?>
- <td><?php echo (int)$r['Barang']; ?></td>
- <td><?php echo (int)$r['Peminjam']; ?></td>
- <td><?php echo (int)$r['Keperluan']; ?></td>
- <td><?php echo e($r['Kembali']); ?></td>
- <td><?php echo e($r['Status'] ?: '-'); ?></td>
- </tr>
- <?php endforeach; endif; ?>
- </tbody>
- </table>
- </div>
- <p class="catatan">Dicetak <?php echo date('d/m/Y H:i'); ?> oleh <?php echo e($user['nama']); ?>.</p>
- </section>
+ 
+<h3>Rincian</h3>
+<div class="table-responsive">
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <?php if ($admin): ?>
+                    <th>OKI</th>
+                    <th>Jenis OKI</th>
+                <?php endif; ?>
+                <th>Barang</th>
+                <th>Kategori</th>
+                <th>Total Unit</th>
+                <th>Sedang Dipinjam</th>
+                <th>Tersedia</th>
+                <th>Kondisi</th>
+                <th>Lokasi</th>
+                <th>Pemantauan</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!$rows): ?>
+                <tr>
+                    <td colspan="<?php echo $admin ? 11 : 9; ?>">
+                        Tidak ada barang aktif.
+                    </td>
+                </tr>
+            <?php else: ?>
+                <?php foreach ($rows as $i => $r): ?>
+                    <tr>
+                        <td><?php echo $i + 1; ?></td>
+
+                        <?php if ($admin): ?>
+                            <td><?php echo e($r['org_nama'] ?? '-'); ?></td>
+                            <td><?php echo e($r['jenis'] ?? '-'); ?></td>
+                        <?php endif; ?>
+
+                        <td><?php echo e($r['nama'] ?? '-'); ?></td>
+                        <td><?php echo e($r['kategori'] ?? '-'); ?></td>
+                        <td><?php echo (int)($r['total'] ?? 0); ?></td>
+                        <td><?php echo (int)($r['keluar'] ?? 0); ?></td>
+                        <td><?php echo (int)($r['tersedia'] ?? 0); ?></td>
+                        <td><?php echo e($r['kondisi'] ?? '-'); ?></td>
+                        <td><?php echo e($r['lokasi'] ?? '-'); ?></td>
+                        <td>
+                            <?php if ((int)$r['terlambat'] > 0): ?>
+                                <span class="badge bg-danger">Terlambat</span>
+                            <?php else: ?>
+                                <span class="badge bg-success">Aman</span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
+<p class="catatan">
+    Dicetak <?php echo date('d/m/Y H:i'); ?> oleh <?php echo e($user['nama']); ?>.
+</p>
+</section>
+
 <?php include __DIR__ . '/../includes/footer.php'; ?>
