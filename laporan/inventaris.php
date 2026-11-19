@@ -33,7 +33,7 @@ if (get_str('format') === 'csv') {
         $r['tersedia'] ?? 0, 
         $r['kondisi'] ?? '-', 
         $r['lokasi'] ?? '-', 
-        $r['pantau'] ?? '-'
+        $r['terlambat'] ?? '-'
     ];
     kirim_csv('laporan-inventaris-' . date('Y-m-d') . '.csv',
         ['OKI', 'Jenis OKI', 'Barang', 'Kategori', 'Jumlah Total', 'Sedang Dipinjam', 'Tersedia Hari Ini', 'Kondisi', 'Lokasi', 'Pemantauan'], $out);
@@ -125,7 +125,13 @@ $qs = http_build_query(['jenis' => $jenis, 'kategori' => $kat]);
                         <td><?php echo (int)($r['tersedia'] ?? 0); ?></td>
                         <td><?php echo e($r['kondisi'] ?? '-'); ?></td>
                         <td><?php echo e($r['lokasi'] ?? '-'); ?></td>
-                        <td><?php echo e($r['pantau'] ?? '-'); ?></td>
+                        <td>
+                            <?php if ((int)$r['terlambat'] > 0): ?>
+                                <span class="badge bg-danger">Terlambat</span>
+                            <?php else: ?>
+                                <span class="badge bg-success">Aman</span>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             <?php endif; ?>
