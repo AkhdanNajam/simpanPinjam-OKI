@@ -18,6 +18,7 @@ $f = ['q' => get_str('q'), 'kategori' => (int)get_str('kategori'), 'jenis' => $j
       'dari' => $dari, 'sampai' => $sampai, 'ada' => get_str('ada') === '1'];
 $katalog = cari_barang($f, $admin);
 $rentang = $dari === $sampai ? tgl_id($dari) : tgl_id($dari) . ' – ' . tgl_id($sampai);
+$colspanKosong = $admin ? 9 : 8;
 ?>
 <section>
  <div class="judul-bar">
@@ -70,25 +71,59 @@ $rentang = $dari === $sampai ? tgl_id($dari) : tgl_id($dari) . ' – ' . tgl_id(
  <div class="table-responsive">
  <table class="tabel-katalog">
   <colgroup>
-   <col style="width:<?php echo $admin ? 24 : 27; ?>%"><col style="width:14%"><col style="width:12%">
-   <col style="width:10%"><col style="width:9%"><col style="width:11%">
+   <col style="width:8%">
+   <col style="width:<?php echo $admin ? 21 : 23; ?>%">
+   <col style="width:13%">
+   <col style="width:12%">
+   <col style="width:9%">
+   <col style="width:8%">
+   <col style="width:10%">
    <?php if ($admin): ?><col style="width:9%"><?php endif; ?>
-   <col style="width:<?php echo $admin ? 11 : 17; ?>%">
+   <col style="width:<?php echo $admin ? 10 : 17; ?>%">
   </colgroup>
   <thead>
    <tr>
-    <th>Nama Barang</th><th>Kategori</th><th>Pemilik</th>
-    <th class="tengah">Tersedia</th><th class="tengah">Maks. hari</th><th>Kondisi</th>
+    <th>Foto</th>
+    <th>Nama Barang</th>
+    <th>Kategori</th>
+    <th>Pemilik</th>
+    <th class="tengah">Tersedia</th>
+    <th class="tengah">Maks. hari</th>
+    <th>Kondisi</th>
     <?php if ($admin): ?><th>Status</th><?php endif; ?>
     <th>Aksi</th>
    </tr>
   </thead>
   <tbody>
   <?php if (empty($katalog)): ?>
-   <tr><td colspan="<?php echo $admin ? 8 : 7; ?>">Tidak ada barang yang cocok.</td></tr>
+   <tr><td colspan="<?php echo $colspanKosong; ?>">Tidak ada barang yang cocok.</td></tr>
   <?php else: foreach ($katalog as $b): ?>
-   <?php $aktif = $b['status'] === 'aktif'; $lbl = $aktif ? 'Nonaktifkan' : 'Aktifkan'; ?>
+   <?php
+    $aktif = $b['status'] === 'aktif';
+    $lbl = $aktif ? 'Nonaktifkan' : 'Aktifkan';
+    $srcFoto = $b['foto_url'] ?? '';
+    if ($srcFoto !== '' && !preg_match('#^(https?://|\.\./|/)#i', $srcFoto)) {
+        $srcFoto = '../' . ltrim($srcFoto, '/');
+    }
+   ?>
    <tr>
+    <td>
+     <?php if ($srcFoto !== ''): ?>
+      <img
+       src="<?php echo e($srcFoto); ?>"
+       alt="<?php echo e($b['nama']); ?>"
+       style="width:52px;height:52px;object-fit:cover;border-radius:8px;display:block;"
+       onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+      >
+      <div style="width:52px;height:52px;border-radius:8px;background:#f1f5f9;color:#64748b;display:none;align-items:center;justify-content:center;font-size:11px;">
+       No Foto
+      </div>
+     <?php else: ?>
+      <div style="width:52px;height:52px;border-radius:8px;background:#f1f5f9;color:#64748b;display:flex;align-items:center;justify-content:center;font-size:11px;">
+       No Foto
+      </div>
+     <?php endif; ?>
+    </td>
     <td>
      <?php echo e($b['nama']); ?>
      <?php if ($b['deskripsi'] !== ''): ?><small class="catatan"><?php echo e($b['deskripsi']); ?></small><?php endif; ?>

@@ -125,21 +125,36 @@ function toggle_akun_org(int $org): void { }
 // Barang aktif milik OKI lain (terverifikasi) yang stoknya masih ada hari ini.
 function barang_tersedia(int $org_id, int $limit = 3): array {
     $hari = date('Y-m-d');
-    $rows = q_all("SELECT * FROM (
-            SELECT b.id_barang AS id, b.nama_barang AS nama, b.foto,
-                   o.nama_organisasi AS pemilik_nama,
-                   b.jumlah - " . HITUNG_STOK . " AND p.tgl_pinjam <= :h1 AND p.tgl_kembali_rencana >= :h2), 0) AS tersedia
-            FROM barang b
-            JOIN organisasi o ON o.id_organisasi = b.id_organisasi
-            WHERE b.status = 'aktif'
-              AND o.status_verifikasi = 'terverifikasi'
-              AND b.id_organisasi <> :org
+    $rows = q_all("select * from (
+            select b.id_barang as id, b.nama_barang as nama, b.foto,
+                   f.id_foto, f.url_foto as foto_db_url,
+                   o.nama_organisasi as pemilik_nama,
+                   b.jumlah - " . HITUNG_STOK . " and p.tgl_pinjam <= :h1 and p.tgl_kembali_rencana >= :h2), 0) as tersedia
+            from barang b
+            join organisasi o on o.id_organisasi = b.id_organisasi
+            left join lateral (
+                select id_foto, url_foto
+                from foto_barang
+                where id_barang = b.id_barang
+                order by is_utama desc nulls last, id_foto asc
+                limit 1
+            ) f on true
+            where b.status = 'aktif'
+              and o.status_verifikasi = 'terverifikasi'
+              and b.id_organisasi <> :org
         ) x
-        WHERE x.tersedia > 0
-        ORDER BY x.id DESC
-        LIMIT " . max(1, $limit),
+        where x.tersedia > 0
+        order by x.id desc
+        limit " . max(1, $limit),
         ['h1' => $hari, 'h2' => $hari, 'org' => $org_id]);
-    return array_map(fn($r) => ints($r, 'id', 'tersedia'), $rows);
+
+    return array_map(function ($r) {
+        $r = ints($r, 'id', 'tersedia', 'id_foto');
+        $sumberFoto = !empty($r['foto_db_url']) ? $r['foto_db_url'] : ($r['foto'] ?? null);
+        $r['foto_url'] = url_foto_barang($sumberFoto, (int)$r['id']);
+        return $r;
+    }, $rows);
+    return array_map('lampirkan_foto_url', $rows);
 }
 
 /* ---------- barang ---------- */
@@ -285,18 +300,26 @@ function cari_barang(array $f = [], bool $hanya_aktif = false): array {
     if (!empty($f['kategori'])) { $w[] = "b.id_kategori = :kat"; $p['kat'] = (int)$f['kategori']; }
     if (!empty($f['jenis']))    { $w[] = "o.jenis_oki = :jenis"; $p['jenis'] = $f['jenis']; }
 
-    $sql = "SELECT b.id_barang AS id, b.id_organisasi AS org, o.nama_organisasi AS org_nama,
-                   o.nama_organisasi AS org_name, o.jenis_oki AS jenis, k.nama_kategori AS kategori,
-                   b.nama_barang AS nama, b.deskripsi, b.status, b.jumlah AS total, b.kondisi,
-                   b.maks_hari AS maks, b.foto,
-                   b.jumlah - " . HITUNG_STOK . " AND p.tgl_pinjam <= :s1 AND p.tgl_kembali_rencana >= :d1), 0) AS tersedia
-            FROM barang b
-            JOIN organisasi o ON o.id_organisasi = b.id_organisasi
-            JOIN kategori k ON k.id_kategori = b.id_kategori";
-    if ($w) $sql .= " WHERE " . implode(' AND ', $w);
-    $sql .= " ORDER BY b.nama_barang, b.id_barang";
+    $sql = "select b.id_barang as id, b.id_organisasi as org, o.nama_organisasi as org_nama,
+                   o.nama_organisasi as org_name, o.jenis_oki as jenis, k.nama_kategori as kategori,
+                   b.nama_barang as nama, b.deskripsi, b.status, b.jumlah as total, b.kondisi,
+                   b.maks_hari as maks, b.foto,
+                   f.id_foto, f.url_foto as foto_db_url,
+                   b.jumlah - " . HITUNG_STOK . " and p.tgl_pinjam <= :s1 and p.tgl_kembali_rencana >= :d1), 0) as tersedia
+            from barang b
+            join organisasi o on o.id_organisasi = b.id_organisasi
+            join kategori k on k.id_kategori = b.id_kategori
+            left join lateral (
+                select id_foto, url_foto
+                from foto_barang
+                where id_barang = b.id_barang
+                order by is_utama desc nulls last, id_foto asc
+                limit 1
+            ) f on true";
+    if ($w) $sql .= " where " . implode(' and ', $w);
+    $sql .= " order by b.nama_barang, b.id_barang";
 
-    $rows = array_map(fn($r) => ints($r, 'id', 'org', 'total', 'maks', 'tersedia'), q_all($sql, $p));
+    $rows = array_map('lampirkan_foto_url', q_all($sql, $p));
     if (!empty($f['ada'])) $rows = array_values(array_filter($rows, fn($r) => $r['tersedia'] > 0));
     return $rows;
 }
@@ -699,6 +722,53 @@ function daftar_notifikasi($user_id) {
 }
 function tandai_notif_dibaca($user_id) {
     return q("UPDATE notifikasi SET is_dibaca = TRUE WHERE id_user = :user_id", ['user_id' => $user_id]);
+}
+
+function base_url_path(): string {
+    $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+    if (preg_match('#/(oki/barang)/[^/]+\.php$#', $script)) {
+        return '../..';
+    }
+    if (preg_match('#/(katalog|oki|admin)/[^/]+\.php$#', $script)) {
+        return '..';
+    }
+    return '.';
+}
+
+function url_foto_barang(?string $foto, int $idBarang = 0): string {
+    $val = trim((string)($foto ?? ''));
+    $base = base_url_path();
+
+    if (preg_match('#^db://foto_barang/(\d+)$#', $val, $m)) {
+        return $base . '/oki/barang/foto.php?id_foto=' . (int)$m[1];
+    }
+
+    if ($val === '' && $idBarang > 0) {
+        $adaFotoDb = (bool)q_val(
+            "SELECT 1 FROM foto_barang WHERE id_barang = :id AND data_foto IS NOT NULL LIMIT 1",
+            ['id' => $idBarang]
+        );
+        if ($adaFotoDb) {
+            return $base . '/oki/barang/foto.php?id_barang=' . $idBarang;
+        }
+    }
+
+    if ($val === '') {
+        return '';
+    }
+
+    if (preg_match('#^https?://#i', $val)) {
+        return $val;
+    }
+
+    return $base . '/' . ltrim($val, '/');
+}
+
+function lampirkan_foto_url(array $r): array {
+    $r = ints($r, 'id', 'org', 'total', 'maks', 'tersedia', 'id_foto');
+    $sumberFoto = !empty($r['foto_db_url']) ? $r['foto_db_url'] : ($r['foto'] ?? null);
+    $r['foto_url'] = url_foto_barang($sumberFoto, (int)($r['id'] ?? 0));
+    return $r;
 }
 
 /* ---------- reset data demo ---------- */
