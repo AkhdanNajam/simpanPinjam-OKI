@@ -52,7 +52,7 @@ function tabel_pinjam(array $rows, string $mode, array $KOND): void { ?>
  </td>
  <td>
  <!-- Tombol Detail (Satu-satunya tombol yang tampil di tabel list.php) -->
-<a href="/oki/peminjaman/detail.php?id=<?php echo (int)$id; ?>" class="btn">
+<a href="detail.php?id=<?php echo (int)$id; ?>" class="btn">
    Detail
 </a>
  
