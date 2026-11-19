@@ -12,8 +12,13 @@ function aksi_oki(string $aksi, int $id, string $label, string $icon, string $ke
         . '<button type="submit" class="btn-icon ' . e($kelas) . '" title="' . e($label) . '" aria-label="' . e($label) . '"><i class="bi ' . e($icon) . '"></i></button></form> ';
 }
 ?>
- <section>
- <h2>Verifikasi OKI</h2>
+<section>
+ <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;">
+ <h2 style="margin: 0;">Verifikasi OKI</h2>
+ <?php if ($admin): ?>
+ <a href="tambah_oki.php" class="btn">+ Tambah OKI</a>
+ <?php endif; ?>
+ </div>
  <?php if ($flash): ?>
  <p class="flash flash-<?php echo e($flash['type']); ?>"><?php echo e($flash['pesan']); ?></p>
  <?php endif; ?>
