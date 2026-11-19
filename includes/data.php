@@ -538,6 +538,9 @@ function laporan_peminjaman($bulan, $org_id, $status, $pemilik_id) {
     return q_all($sql . " ORDER BY p.tgl_pinjam DESC, p.id_peminjaman DESC", $params);
 }
 
+
+
+
 function inventaris($kategori_id = 0, $org_id = 0, $jenis_oki = '') {
     $pdo = db();
 
@@ -550,36 +553,83 @@ function inventaris($kategori_id = 0, $org_id = 0, $jenis_oki = '') {
                 b.nama_barang AS nama,
                 k.nama_kategori AS kategori,
                 b.jumlah AS total,
-                COALESCE(p.keluar, 0) AS keluar,
-                (b.jumlah - COALESCE(p.keluar, 0)) AS tersedia,
+
+                COALESCE(a.keluar, 0) AS keluar,
+
+                (b.jumlah - COALESCE(a.keluar, 0)) AS tersedia,
+
                 COALESCE(p.terlambat, 0) AS terlambat,
+
+                p.tanggal_pinjam AS tanggal_pinjam,
+                p.tanggal_kembali AS tanggal_kembali,
+                p.tanggal_kembali_aktual AS tanggal_kembali_aktual,
+
                 b.kondisi AS kondisi,
                 b.lokasi AS lokasi,
+
                 o.nama_organisasi AS org_nama,
                 o.jenis_oki AS jenis
+
             FROM barang b
+
             LEFT JOIN kategori k
                 ON b.id_kategori = k.id_kategori
+
             LEFT JOIN organisasi o
                 ON b.id_organisasi = o.id_organisasi
+
             LEFT JOIN (
                 SELECT
                     d.id_barang,
-                    SUM(d.jumlah) AS keluar,
-                    SUM(
-                        CASE
-                            WHEN p.tgl_kembali_rencana < CURRENT_DATE
-                            THEN d.jumlah
-                            ELSE 0
-                        END
-                    ) AS terlambat
+                    SUM(d.jumlah) AS keluar
                 FROM detail_peminjaman d
-                JOIN peminjaman p
-                    ON d.id_peminjaman = p.id_peminjaman
-                WHERE p.status = 'dipinjam'
+                JOIN peminjaman pm
+                    ON d.id_peminjaman = pm.id_peminjaman
+                WHERE pm.status = 'dipinjam'
                 GROUP BY d.id_barang
-            ) p
-                ON b.id_barang = p.id_barang
+            ) a ON b.id_barang = a.id_barang
+
+            LEFT JOIN LATERAL (
+                SELECT
+                    pm.tgl_pinjam AS tanggal_pinjam,
+                    pm.tgl_kembali_rencana AS tanggal_kembali,
+                    pm.tgl_kembali_aktual AS tanggal_kembali_aktual,
+
+                    CASE
+                        WHEN pm.status = 'dipinjam'
+                             AND pm.tgl_kembali_rencana < CURRENT_DATE
+                             AND pm.tgl_kembali_aktual IS NULL
+                        THEN d.jumlah
+
+                        WHEN pm.status = 'selesai'
+                             AND pm.tgl_kembali_aktual > pm.tgl_kembali_rencana
+                        THEN d.jumlah
+
+                        ELSE 0
+                    END AS terlambat
+
+                FROM detail_peminjaman d
+                JOIN peminjaman pm
+                    ON d.id_peminjaman = pm.id_peminjaman
+
+                WHERE d.id_barang = b.id_barang
+                  AND pm.status IN ('dipinjam', 'selesai')
+
+                ORDER BY
+                    CASE
+                        WHEN pm.status = 'dipinjam'
+                             AND pm.tgl_kembali_rencana < CURRENT_DATE THEN 0
+                        WHEN pm.status = 'dipinjam' THEN 1
+                        WHEN pm.status = 'selesai'
+                             AND pm.tgl_kembali_aktual > pm.tgl_kembali_rencana THEN 2
+                        ELSE 3
+                    END,
+                    pm.tgl_pinjam DESC,
+                    pm.id_peminjaman DESC
+
+                LIMIT 1
+            ) p ON TRUE
+
             WHERE b.status = 'aktif'";
 
     $params = [];
@@ -606,6 +656,9 @@ function inventaris($kategori_id = 0, $org_id = 0, $jenis_oki = '') {
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+
+
 
 /* ---------- logika peminjaman ---------- */
 // Stok tersedia untuk rentang tanggal; peminjaman berstatus disetujui/dipinjam yang beririsan dihitung terpakai.

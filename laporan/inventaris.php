@@ -92,7 +92,9 @@ $qs = http_build_query(['jenis' => $jenis, 'kategori' => $kat]);
                     <th>Jenis OKI</th>
                 <?php endif; ?>
                 <th>Barang</th>
-                <th>Kategori</th>
+                <th>Tanggal Pinjam</th>
+                <th>Rencana Kembali</th>
+                <th>Aktual Kembali</th>
                 <th>Total Unit</th>
                 <th>Sedang Dipinjam</th>
                 <th>Tersedia</th>
@@ -119,7 +121,9 @@ $qs = http_build_query(['jenis' => $jenis, 'kategori' => $kat]);
                         <?php endif; ?>
 
                         <td><?php echo e($r['nama'] ?? '-'); ?></td>
-                        <td><?php echo e($r['kategori'] ?? '-'); ?></td>
+                        <td><?php echo e($r['tanggal_pinjam'] ?? '-'); ?></td>
+                        <td><?php echo e($r['tanggal_kembali'] ?? '-'); ?></td>
+                        <td><?php echo e($r['tanggal_kembali_aktual'] ?? '-'); ?></td>
                         <td><?php echo (int)($r['total'] ?? 0); ?></td>
                         <td><?php echo (int)($r['keluar'] ?? 0); ?></td>
                         <td><?php echo (int)($r['tersedia'] ?? 0); ?></td>
