@@ -516,54 +516,73 @@ function laporan_peminjaman($bulan, $org_id, $status, $pemilik_id) {
 }
 
 function inventaris($kategori_id = 0, $org_id = 0, $jenis_oki = '') {
-    global $pdo;
+    $pdo = db();
+
     if (!$pdo) {
         return [];
     }
 
-    // Menggunakan alias (AS) agar nama kolom di database yang rumit 
-    // langsung menjadi bersih dan mudah dipahami di frontend
-    $sql = "SELECT i.id, 
-                   i.nama AS nama, 
-                   i.kategori AS kategori, 
-                   i.jumlah AS total, 
-                   i.dipinjam AS keluar, 
-                   i.tersedia AS tersedia, 
-                   i.terlambat AS terlambat, 
-                   i.kondisi AS kondisi, 
-                   i.lokasi AS lokasi,
-                   o.nama AS org_nama,
-                   o.jenis AS jenis
-            FROM inventaris i
-            LEFT JOIN organisasi o ON i.id_organisasi = o.id
-            WHERE 1=1";
+    $sql = "SELECT
+                b.id_barang AS id,
+                b.nama_barang AS nama,
+                k.nama_kategori AS kategori,
+                b.jumlah AS total,
+                COALESCE(p.keluar, 0) AS keluar,
+                (b.jumlah - COALESCE(p.keluar, 0)) AS tersedia,
+                COALESCE(p.terlambat, 0) AS terlambat,
+                b.kondisi AS kondisi,
+                b.lokasi AS lokasi,
+                o.nama_organisasi AS org_nama,
+                o.jenis_oki AS jenis
+            FROM barang b
+            LEFT JOIN kategori k
+                ON b.id_kategori = k.id_kategori
+            LEFT JOIN organisasi o
+                ON b.id_organisasi = o.id_organisasi
+            LEFT JOIN (
+                SELECT
+                    d.id_barang,
+                    SUM(d.jumlah) AS keluar,
+                    SUM(
+                        CASE
+                            WHEN p.tgl_kembali_rencana < CURRENT_DATE
+                            THEN d.jumlah
+                            ELSE 0
+                        END
+                    ) AS terlambat
+                FROM detail_peminjaman d
+                JOIN peminjaman p
+                    ON d.id_peminjaman = p.id_peminjaman
+                WHERE p.status = 'dipinjam'
+                GROUP BY d.id_barang
+            ) p
+                ON b.id_barang = p.id_barang
+            WHERE b.status = 'aktif'";
+
     $params = [];
 
-    // Filter Kategori
     if (!empty($kategori_id)) {
-        $sql .= " AND i.id_kategori = ?";
+        $sql .= " AND b.id_kategori = ?";
         $params[] = $kategori_id;
     }
 
-    // Filter Organisasi (jika bukan admin)
     if (!empty($org_id)) {
-        $sql .= " AND i.id_organisasi = ?";
+        $sql .= " AND b.id_organisasi = ?";
         $params[] = $org_id;
     }
 
-    // Filter Jenis OKI Pemilik
     if (!empty($jenis_oki)) {
-        $sql .= " AND o.jenis = ?";
+        $sql .= " AND o.jenis_oki = ?";
         $params[] = $jenis_oki;
     }
 
-    $sql .= " ORDER BY i.id DESC";
+    $sql .= " ORDER BY b.id_barang DESC";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
+
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
 
 /* ---------- logika peminjaman ---------- */
 // Stok tersedia untuk rentang tanggal; peminjaman berstatus disetujui/dipinjam yang beririsan dihitung terpakai.

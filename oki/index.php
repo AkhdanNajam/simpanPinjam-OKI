@@ -83,7 +83,7 @@ $tersedia = barang_tersedia((int)$user['org'], 3);
     <tr><td colspan="5">Belum ada peminjaman.</td></tr>
    <?php else: foreach ($terbaru as $p): ?>
     <tr>
-     <td><a href="<?php echo $base; ?>peminjaman/detail.php?id=<?php echo (int)$p['id']; ?>"><?php echo (int)$p['id']; ?></a></td>
+     <td><?php echo (int)$p['id']; ?></td>
      <td><?php echo e($p['item_teks']); ?></td>
      <td><?php echo e($p['peminjam_nama']); ?> &rarr; <?php echo e($p['pemilik_nama']); ?></td>
      <td><?php echo tgl_id($p['tgl_pinjam']); ?> – <?php echo tgl_id($p['tgl_rencana']); ?></td>
