@@ -97,9 +97,7 @@ $qs = http_build_query(['jenis' => $jenis, 'kategori' => $kat]);
                 <th>Aktual Kembali</th>
                 <th>Total Unit</th>
                 <th>Sedang Dipinjam</th>
-                <th>Tersedia</th>
                 <th>Kondisi</th>
-                <th>Lokasi</th>
                 <th>Pemantauan</th>
             </tr>
         </thead>
@@ -126,9 +124,7 @@ $qs = http_build_query(['jenis' => $jenis, 'kategori' => $kat]);
                         <td><?php echo e($r['tanggal_kembali_aktual'] ?? '-'); ?></td>
                         <td><?php echo (int)($r['total'] ?? 0); ?></td>
                         <td><?php echo (int)($r['keluar'] ?? 0); ?></td>
-                        <td><?php echo (int)($r['tersedia'] ?? 0); ?></td>
                         <td><?php echo e($r['kondisi'] ?? '-'); ?></td>
-                        <td><?php echo e($r['lokasi'] ?? '-'); ?></td>
                         <td>
                             <?php if ((int)$r['terlambat'] > 0): ?>
                                 <span class="badge bg-danger">Terlambat</span>
