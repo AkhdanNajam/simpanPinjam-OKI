@@ -212,7 +212,22 @@ table.kalender td.hari-ini { outline: 2px solid var(--biru); outline-offset: -2p
 .dash-admin .akses-cepat .btn:hover { background: #f1f0f8; }
 
 /* tabel: garis hanya di bawah judul kolom */
-.dash-admin .lihat-semua { color: var(--ungu); font-size: .75rem; }
+.dash-admin .section-head .lihat-semua {
+    display: inline-block;
+    padding: 8px 14px;
+    font-size: .8rem;
+    font-weight: 500;
+    color: #fff;
+    background-color: #2d2a6e;
+    text-decoration: none;
+    border-radius: 6px;
+    margin: 0;
+    transition: background-color .2s;
+}
+
+.dash-admin .section-head .lihat-semua:hover {
+    background-color: #211e55;
+}
 .dash-admin thead th { color: var(--ungu); font-weight: 500; border-bottom: 1px solid var(--ungu); }
 .dash-admin tbody td { border-bottom: 0; color: var(--ungu); }
 .dash-admin tbody td a { color: inherit; text-decoration: none; }

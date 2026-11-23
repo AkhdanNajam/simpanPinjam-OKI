@@ -29,7 +29,12 @@ $terbaru = peminjaman_terbaru(0, 5);
   <a class="btn" href="<?php echo $base; ?>laporan/peminjaman.php">Laporan</a>
  </p>
 
- <h3>Peminjaman Terbaru <a class="lihat-semua" href="peminjaman/list.php">Lihat Semua &rarr;</a></h3>
+ <div class="section-head">
+    <h3>Peminjaman Terbaru</h3>
+    <a class="lihat-semua" href="peminjaman/list.php">
+        Lihat Semua &rarr;
+    </a>
+</div>
  <div class="table-responsive">
   <table>
    <thead><tr><th>No</th><th>Barang</th><th>Peminjam</th><th>Pemilik</th><th>Status</th></tr></thead>
