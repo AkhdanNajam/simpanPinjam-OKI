@@ -630,3 +630,42 @@ a.btn-icon { text-decoration: none; }
 .aksi-grup .btn-ajukan          { background: #1e3a8a; }
 .aksi-grup .btn-verif           { background: #15803d; }
 .aksi-grup .btn-nonaktif-barang { background: #d97706; }
+
+/* ===== Tombol aksi detail peminjaman ===== */
+.aksi-peminjaman {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.aksi-peminjaman form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.aksi-peminjaman button {
+    width: 94px;
+    height: 40px;
+    margin: 0 !important;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px 20px;
+    line-height: 1;
+}
+
+.aksi-peminjaman .form-tolak {
+    flex-direction: row;
+}
+
+.aksi-peminjaman input[type="text"] {
+    width: 290px;
+    margin: 0;
+    flex-shrink: 0;
+}

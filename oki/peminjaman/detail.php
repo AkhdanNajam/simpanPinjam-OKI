@@ -39,43 +39,52 @@ $KOND = $KONDISI ?? ['Baik', 'Kurang Baik', 'Rusak'];
 
      <!-- 1. STATUS: MENUNGGU (Tombol Setuju & Tolak) -->
      <?php if ($p['status'] === 'menunggu'): ?>
-     <div class="card no-print" style="margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
-         <h3>Proses Pengajuan Peminjaman</h3>
-         <p>Silakan tinjau permohonan ini dan berikan keputusan.</p>
+     <div class="card no-print card-pengajuan"
+     style="margin: 20px 0; padding: 12px 14px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+         <h3 style="margin: 0 0 6px !important; padding: 0 !important; font-size: 17px; line-height: 1.3;">
+            Proses Pengajuan Peminjaman
+        </h3>
+
+        <p style="margin: 0 0 10px !important; padding: 0 !important; font-size: 15px; line-height: 1.4;">
+            Silakan tinjau permohonan ini dan berikan keputusan.
+        </p>
          
-         <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
-             <!-- Tombol Setujui -->
-             <div>
-                 <form method="post" action="proses_aksi.php" style="margin: 0;">
-                     <?php echo csrf_field(); ?>
-                     <input type="hidden" name="id" value="<?php echo (int)$p['id']; ?>">
-                     <input type="hidden" name="aksi" value="setuju">
-                     <button type="submit" class="btn btn-setuju" style="background: #09653a; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s; width: 140px; text-align: center;">Setujui</button>
-                 </form>
-             </div>
+         <div class="aksi-peminjaman">
 
-             <!-- Tombol Tolak di atas, diikuti kolom alasan di bawahnya -->
-             <div>
-                 <form method="post" action="proses_aksi.php" style="display: flex; flex-direction: column; gap: 10px; margin: 0;">
-                     <?php echo csrf_field(); ?>
-                     <input type="hidden" name="id" value="<?php echo (int)$p['id']; ?>">
-                     <input type="hidden" name="aksi" value="tolak">
-                     
-                     <div>
-                         <button type="submit" class="btn btn-tolak" style="background: #b91c1c; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s; width: 140px; text-align: center;">Tolak</button>
-                     </div>
+        <form method="post" action="proses_aksi.php" style="margin: 0;">
+            <?php echo csrf_field(); ?>
+            <input type="hidden" name="id" value="<?php echo (int)$p['id']; ?>">
+            <input type="hidden" name="aksi" value="setuju">
 
-                     <div>
-                         <input type="text" name="alasan" placeholder="Masukkan alasan menolak (wajib diisi)..." required style="padding: 10px; border: 1px solid #ccc; border-radius: 6px; width: 100%; max-width: 500px;">
-                     </div>
-                 </form>
-             </div>
-         </div>
+            <button type="submit" class="btn btn-setuju"
+                style="background: #09653a; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; width: 140px;">
+                Setujui
+            </button>
+        </form>
+
+        <form method="post" action="proses_aksi.php" class="form-tolak">
+        <?php echo csrf_field(); ?>
+            <input type="hidden" name="id" value="<?php echo (int)$p['id']; ?>">
+            <input type="hidden" name="aksi" value="tolak">
+
+            <button type="submit" class="btn btn-tolak"
+                style="background: #b91c1c; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; width: 140px;">
+                Tolak
+            </button>
+
+            <input type="text" name="alasan"
+            placeholder="Masukkan alasan menolak (wajib diisi)..."
+            required
+            style="display: block; margin: 0; padding: 10px; border: 1px solid #ccc; border-radius: 6px; width: 290px; box-sizing: border-box; align-self: flex-start;">
+        </form>
+
+    </div>
+             
      </div>
 
      <!-- 2. STATUS: DISETUJUI (Tombol Serah Terima) -->
      <?php elseif ($p['status'] === 'disetujui'): ?>
-     <div class="card no-print" style="margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+     <div class="card no-print card-pengajuan">
          <h3>Serah Terima Barang</h3>
          <p>Pengajuan telah disetujui. Silakan lakukan proses serah terima barang kepada peminjam.</p>
          
@@ -156,6 +165,8 @@ $KOND = $KONDISI ?? ['Baik', 'Kurang Baik', 'Rusak'];
  <li><small><?php echo e($l['waktu']); ?></small> &mdash; <?php echo e($l['user_nama']); ?>: <?php echo e($l['lama'] ?: 'baru'); ?> → <strong><?php echo e($l['baru']); ?></strong><?php if ($l['ket']): ?> (<?php echo e($l['ket']); ?>)<?php endif; ?></li>
  <?php endforeach; ?>
  </ul>
- <p><a href="list.php">&larr; Kembali</a></p>
+ <div style="margin-top: 20px;">
+    <a href="list.php" class="btn">&larr; Kembali</a>
+</div>
  </section>
 <?php include __DIR__ . '/../../includes/footer.php'; ?>

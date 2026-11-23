@@ -23,9 +23,6 @@ $colspanKosong = $admin ? 9 : 8;
 <section>
  <div class="judul-bar">
   <h2>Katalog Barang</h2>
-  <?php if (!empty($user['org']) || !empty($oki)): ?>
-   <a href="<?php echo $base; ?>oki/barang/tambah.php" class="btn-icon btn-tambah-barang" title="Tambah Barang" aria-label="Tambah Barang"><i class="bi bi-plus-lg"></i> Tambah Barang</a>
-  <?php endif; ?>
  </div>
 
  <?php if ($flash): ?>

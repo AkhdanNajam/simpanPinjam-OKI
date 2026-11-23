@@ -23,9 +23,9 @@ $milik = barang_milik($user['org']);
     <div class="table-responsive">
         <table class="tabel-barang">
             <colgroup>
-                <col style="width:8%"><col style="width:17%"><col style="width:12%">
+                <col style="width:8%"><col style="width:15%"><col style="width:12%">
                 <col style="width:7%"><col style="width:8%"><col style="width:9%">
-                <col style="width:9%"><col style="width:12%"><col style="width:18%">
+                <col style="width:9%"><col style="width:15%"><col style="width:15%">
             </colgroup>
             <thead>
                 <tr>
